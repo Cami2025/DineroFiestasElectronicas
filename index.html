@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Depósitos Compartidos</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Depósitos Compartidos</h1>
+        <form id="deposit-form">
+            <input type="number" id="amount" placeholder="Monto a depositar" required>
+            <input type="text" id="name" placeholder="Tu nombre" required>
+            <button type="submit">Añadir Depósito</button>
+        </form>
+        <h2>Monto Total: <span id="total-amount">200000</span></h2>
+        <h3>Historial de Depósitos:</h3>
+        <ul id="history-list"></ul>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
