@@ -26,17 +26,36 @@
         .container {
             position: relative;
             z-index: 1;
-            color: white; /* Cambia el color del texto general para que contraste con el video */
+            color: white;
             text-align: center;
-            background-color: rgba(0, 0, 0, 0.5); /* Fondo semitransparente para mejor visibilidad */
+            background-color: rgba(0, 0, 0, 0.5);
             padding: 20px;
             border-radius: 10px;
         }
 
+        /* Estilo para el botón de reproducción */
+        #play-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 2;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        #play-button:hover {
+            background-color: rgba(0, 0, 0, 0.9);
+        }
+
         /* Estilo para las letras del historial de depósitos */
         #history-list li {
-            color: black; /* Cambia el color del texto del historial a negro */
-            background-color: rgba(255, 255, 255, 0.8); /* Fondo blanco semitransparente */
+            color: black;
+            background-color: rgba(255, 255, 255, 0.8);
             padding: 5px;
             border-radius: 5px;
             margin: 5px 0;
@@ -60,9 +79,12 @@
     </style>
 </head>
 <body>
+    <!-- Botón para reproducir el video con sonido -->
+    <button id="play-button">Reproducir Video</button>
+
     <!-- Video de fondo -->
     <video id="background-video" autoplay loop>
-      <source src="/assets/creamfields-CRKtK7Q2.mp4" type="video/mp4">
+        <source src="static/creamfields.mp4" type="video/mp4">
         Tu navegador no soporta el elemento de video.
     </video>
 
@@ -84,9 +106,18 @@
         const nameInput = document.getElementById('name');
         const totalAmountSpan = document.getElementById('total-amount');
         const historyList = document.getElementById('history-list');
+        const video = document.getElementById('background-video');
+        const playButton = document.getElementById('play-button');
 
         let totalAmount = 282810; // Monto inicial
         totalAmountSpan.textContent = `$${totalAmount}`; // Mostrar sin decimales
+
+        // Función para reproducir el video con sonido
+        playButton.addEventListener('click', () => {
+            video.play();
+            video.muted = false; // Habilita el sonido
+            playButton.style.display = 'none'; // Oculta el botón después de reproducir
+        });
 
         // Función para actualizar el total
         function updateTotal(amount) {
