@@ -5,8 +5,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Depósitos Compartidos</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* Asegúrate de que el video cubra toda la pantalla */
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        video#background-video {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            color: white; /* Cambia el color del texto general para que contraste con el video */
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.5); /* Fondo semitransparente para mejor visibilidad */
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        /* Estilo para las letras del historial de depósitos */
+        #history-list li {
+            color: black; /* Cambia el color del texto del historial a negro */
+            background-color: rgba(255, 255, 255, 0.8); /* Fondo blanco semitransparente */
+            padding: 5px;
+            border-radius: 5px;
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #history-list li button {
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        #history-list li button:hover {
+            background-color: darkred;
+        }
+    </style>
 </head>
 <body>
+    <!-- Video de fondo -->
+    <video id="background-video" autoplay loop>
+        <source src="static/creamfields.mp4" type="video/mp4">
+        Tu navegador no soporta el elemento de video.
+    </video>
+
     <div class="container">
         <h1>Depósitos Compartidos</h1>
         <form id="deposit-form">
@@ -14,10 +73,60 @@
             <input type="text" id="name" placeholder="Tu nombre" required>
             <button type="submit">Añadir Depósito</button>
         </form>
-        <h2>Monto Total: <span id="total-amount">200000</span></h2>
+        <h2>Monto Total: <span id="total-amount">$282810</span></h2>
         <h3>Historial de Depósitos:</h3>
         <ul id="history-list"></ul>
     </div>
-    <script src="script.js"></script>
+
+    <script>
+        const depositForm = document.getElementById('deposit-form');
+        const amountInput = document.getElementById('amount');
+        const nameInput = document.getElementById('name');
+        const totalAmountSpan = document.getElementById('total-amount');
+        const historyList = document.getElementById('history-list');
+
+        let totalAmount = 282810; // Monto inicial
+        totalAmountSpan.textContent = `$${totalAmount}`; // Mostrar sin decimales
+
+        // Función para actualizar el total
+        function updateTotal(amount) {
+            totalAmount += amount;
+            totalAmountSpan.textContent = `$${totalAmount}`; // Sin decimales
+        }
+
+        // Función para añadir un depósito al historial
+        function addDeposit(name, amount) {
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `
+                ${name} depositó $${amount} el ${new Date().toLocaleDateString()}
+                <button class="delete-button">Eliminar</button>
+            `;
+            const deleteButton = listItem.querySelector('.delete-button');
+            deleteButton.addEventListener('click', () => {
+                historyList.removeChild(listItem);
+                updateTotal(-amount); // Resta el monto eliminado
+            });
+            historyList.appendChild(listItem);
+        }
+
+        // Manejo del formulario
+        depositForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const name = nameInput.value.trim();
+            const amount = parseInt(amountInput.value); // Convertir a entero
+
+            if (!name || isNaN(amount) || amount <= 0) {
+                alert('Por favor, ingresa un nombre y un monto válido.');
+                return;
+            }
+
+            addDeposit(name, amount);
+            updateTotal(amount);
+
+            // Limpiar campos
+            nameInput.value = '';
+            amountInput.value = '';
+        });
+    </script>
 </body>
 </html>
