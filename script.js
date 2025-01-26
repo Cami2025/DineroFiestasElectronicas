@@ -1,38 +1,48 @@
-document.getElementById("form-deposito").addEventListener("submit", async (e) => {
-    e.preventDefault();
+const depositForm = document.getElementById('deposit-form');
+const amountInput = document.getElementById('amount');
+const nameInput = document.getElementById('name');
+const totalAmountSpan = document.getElementById('total-amount');
+const historyList = document.getElementById('history-list');
 
-    const nombre = document.getElementById("nombre").value;
-    const monto = parseFloat(document.getElementById("monto").value);
+let totalAmount = 282810; // Monto inicial
+totalAmountSpan.textContent = `$${totalAmount.toLocaleString()}`; // Formato con separadores
 
-    // Enviar datos al servidor
-    const response = await fetch("guardar.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: `nombre=${nombre}&monto=${monto}`,
-    });
-
-    const data = await response.json();
-    if (data.success) {
-        document.getElementById("monto-total").innerText = `$${data.total.toFixed(2)}`;
-        cargarHistorial();
-    }
-});
-
-async function cargarHistorial() {
-    const response = await fetch("obtener.php");
-    const data = await response.json();
-
-    const historial = document.getElementById("historial");
-    historial.innerHTML = "";
-
-    data.depositos.forEach((deposito) => {
-        const item = document.createElement("li");
-        item.textContent = `${deposito.nombre} depositó $${deposito.monto.toFixed(2)}`;
-        historial.appendChild(item);
-    });
-
-    document.getElementById("monto-total").innerText = `$${data.total.toFixed(2)}`;
+// Función para actualizar el total dinámicamente
+function updateTotal(amount) {
+    totalAmount += amount;
+    totalAmountSpan.textContent = `$${totalAmount.toLocaleString()}`;
 }
 
-// Cargar historial al cargar la página
-cargarHistorial();
+// Función para añadir un depósito al historial
+function addDeposit(name, amount) {
+    const listItem = document.createElement('li');
+    listItem.innerHTML = `
+        ${name} depositó $${amount.toLocaleString()} el ${new Date().toLocaleDateString()}
+        <button class="delete-button">Eliminar</button>
+    `;
+    const deleteButton = listItem.querySelector('.delete-button');
+    deleteButton.addEventListener('click', () => {
+        historyList.removeChild(listItem);
+        updateTotal(-amount); // Resta el monto eliminado
+    });
+    historyList.appendChild(listItem);
+}
+
+// Manejo del formulario
+depositForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const name = nameInput.value.trim();
+    const amount = parseInt(amountInput.value);
+
+    if (!name || isNaN(amount) || amount <= 0) {
+        alert('Por favor, ingresa un nombre y un monto válido.');
+        return;
+    }
+
+    addDeposit(name, amount);
+    updateTotal(amount);
+
+    // Limpiar campos
+    nameInput.value = '';
+    amountInput.value = '';
+});
