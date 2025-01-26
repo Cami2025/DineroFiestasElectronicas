@@ -79,7 +79,7 @@
 </head>
 <body>
     <!-- Video de fondo -->
-    <video id="background-video" autoplay loop muted>
+    <video id="background-video" autoplay loop>
         <source src="/creamfields.mp4" type="video/mp4">
         Tu navegador no soporta el elemento de video.
     </video>
@@ -111,10 +111,17 @@
         let totalAmount = 282810; // Monto inicial
         totalAmountSpan.textContent = `$${totalAmount}`; // Mostrar sin decimales
 
-        // Activar sonido del video
+        // Intentar reproducir el video automáticamente con sonido
+        video.play().then(() => {
+            video.muted = false; // Desactiva el mute
+        }).catch(error => {
+            console.log("El navegador bloqueó la reproducción automática con sonido:", error);
+        });
+
+        // Activar sonido del video manualmente
         soundButton.addEventListener('click', () => {
             video.muted = false; // Desactiva el mute
-            video.play(); // Reproduce el video con sonido
+            video.play(); // Reproduce con sonido
             soundButton.style.display = 'none'; // Oculta el botón
         });
 
