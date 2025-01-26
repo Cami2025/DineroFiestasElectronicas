@@ -23,24 +23,6 @@
             z-index: -1;
         }
 
-        #sound-button {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            z-index: 2;
-            background-color: rgba(0, 0, 0, 0.7);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        #sound-button:hover {
-            background-color: rgba(0, 0, 0, 0.9);
-        }
-
         .container {
             position: relative;
             z-index: 1;
@@ -79,13 +61,16 @@
 </head>
 <body>
     <!-- Video de fondo -->
-    <video id="background-video" autoplay loop>
+    <video id="background-video" autoplay loop muted>
         <source src="/creamfields.mp4" type="video/mp4">
         Tu navegador no soporta el elemento de video.
     </video>
 
-    <!-- Botón para activar el sonido -->
-    <button id="sound-button">Activar sonido</button>
+    <!-- Audio de fondo -->
+    <audio id="background-audio" autoplay loop>
+        <source src="/audiofile.mp3" type="audio/mp3">
+        Tu navegador no soporta el elemento de audio.
+    </audio>
 
     <div class="container">
         <h1>Depósitos Compartidos</h1>
@@ -105,24 +90,14 @@
         const nameInput = document.getElementById('name');
         const totalAmountSpan = document.getElementById('total-amount');
         const historyList = document.getElementById('history-list');
-        const video = document.getElementById('background-video');
-        const soundButton = document.getElementById('sound-button');
+        const audio = document.getElementById('background-audio');
 
         let totalAmount = 282810; // Monto inicial
         totalAmountSpan.textContent = `$${totalAmount}`; // Mostrar sin decimales
 
-        // Intentar reproducir el video automáticamente con sonido
-        video.play().then(() => {
-            video.muted = false; // Desactiva el mute
-        }).catch(error => {
-            console.log("El navegador bloqueó la reproducción automática con sonido:", error);
-        });
-
-        // Activar sonido del video manualmente
-        soundButton.addEventListener('click', () => {
-            video.muted = false; // Desactiva el mute
-            video.play(); // Reproduce con sonido
-            soundButton.style.display = 'none'; // Oculta el botón
+        // Intentar reproducir el audio automáticamente
+        audio.play().catch(error => {
+            console.log("El navegador bloqueó la reproducción automática del audio:", error);
         });
 
         // Función para actualizar el total
