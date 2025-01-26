@@ -6,12 +6,11 @@
     <title>Depósitos Compartidos</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Estilo base */
+        /* Asegúrate de que el video cubra toda la pantalla */
         body {
             margin: 0;
             padding: 0;
             overflow: hidden;
-            font-family: Arial, sans-serif;
         }
 
         video#background-video {
@@ -37,15 +36,25 @@
             max-width: 600px;
             margin-left: auto;
             margin-right: auto;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra sutil */
         }
 
         h1 {
             margin-bottom: 20px;
             color: white;
-            text-shadow: 2px 2px 5px black;
+            text-shadow: 2px 2px 5px black; /* Sombra para visibilidad */
         }
 
+        h2, h3 {
+            margin-top: 20px;
+            color: white;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.5); /* Fondo semitransparente */
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        /* Estilo para las letras del historial de depósitos */
         #history-list li {
             color: black;
             background-color: rgba(255, 255, 255, 0.8);
@@ -70,23 +79,13 @@
             background-color: darkred;
         }
 
-        form input, form button {
+        /* Ajustes específicos para hacer el formulario más compacto */
+        form {
+            margin-bottom: 10px;
+        }
+
+        input, button {
             margin: 5px 0;
-            padding: 10px;
-            border-radius: 5px;
-            border: none;
-            width: calc(100% - 20px);
-        }
-
-        form button {
-            background-color: purple;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-        }
-
-        form button:hover {
-            background-color: darkviolet;
         }
     </style>
 </head>
@@ -97,6 +96,12 @@
         Tu navegador no soporta el elemento de video.
     </video>
 
+    <!-- Audio de fondo -->
+    <audio id="background-audio" loop>
+        <source src="/audiofile.mp3" type="audio/mp3">
+        Tu navegador no soporta el elemento de audio.
+    </audio>
+
     <div class="container">
         <h1>Depósitos Compartidos</h1>
         <form id="deposit-form">
@@ -104,11 +109,75 @@
             <input type="text" id="name" placeholder="Tu nombre" required>
             <button type="submit">Añadir Depósito</button>
         </form>
+        <!-- Monto total -->
         <h2>Monto Total: <span id="total-amount">$282810</span></h2>
+        <!-- Historial -->
         <h3>Historial de Depósitos:</h3>
         <ul id="history-list"></ul>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        const depositForm = document.getElementById('deposit-form');
+        const amountInput = document.getElementById('amount');
+        const nameInput = document.getElementById('name');
+        const totalAmountSpan = document.getElementById('total-amount');
+        const historyList = document.getElementById('history-list');
+        const audio = document.getElementById('background-audio');
+
+        let totalAmount = 282810; // Monto inicial
+        totalAmountSpan.textContent = `$${totalAmount}`; // Mostrar sin decimales
+
+        // Intentar reproducir el audio al enfocar el formulario
+        depositForm.addEventListener('focus', () => {
+            audio.play().catch(error => {
+                console.log("Error al intentar reproducir el audio al enfocar el formulario:", error);
+            });
+        }, true);
+
+        // Función para actualizar el total
+        function updateTotal(amount) {
+            totalAmount += amount;
+            totalAmountSpan.textContent = `$${totalAmount}`; // Sin decimales
+        }
+
+        // Función para añadir un depósito al historial
+        function addDeposit(name, amount) {
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `
+                ${name} depositó $${amount} el ${new Date().toLocaleDateString()}
+                <button class="delete-button">Eliminar</button>
+            `;
+            const deleteButton = listItem.querySelector('.delete-button');
+            deleteButton.addEventListener('click', () => {
+                historyList.removeChild(listItem);
+                updateTotal(-amount); // Resta el monto eliminado
+            });
+            historyList.appendChild(listItem);
+        }
+
+        // Manejo del formulario
+        depositForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const name = nameInput.value.trim();
+            const amount = parseInt(amountInput.value); // Convertir a entero
+
+            if (!name || isNaN(amount) || amount <= 0) {
+                alert('Por favor, ingresa un nombre y un monto válido.');
+                return;
+            }
+
+            addDeposit(name, amount);
+            updateTotal(amount);
+
+            // Reproducir el audio automáticamente después de añadir un depósito
+            audio.play().catch(error => {
+                console.log("Error al intentar reproducir el audio después de añadir un depósito:", error);
+            });
+
+            // Limpiar campos
+            nameInput.value = '';
+            amountInput.value = '';
+        });
+    </script>
 </body>
 </html>
