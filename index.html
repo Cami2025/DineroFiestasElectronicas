@@ -62,6 +62,7 @@
             background-color: rgba(0, 0, 0, 0.3); /* Fondo semitransparente */
             padding: 10px;
             border-radius: 5px;
+            scrollbar-width: thin; /* Estilo para navegadores compatibles */
         }
 
         #history-list li {
@@ -149,9 +150,9 @@
             totalAmountSpan.textContent = `$${totalAmount}`; // Sin decimales
         }
 
-        // Función para desplazarse automáticamente hacia abajo
+        // Función para desplazarse automáticamente hacia el final de la lista
         function scrollToBottom() {
-            historyList.scrollTop = historyList.scrollHeight;
+            historyList.scrollTop = historyList.scrollHeight; // Desplaza al final
         }
 
         // Función para añadir un depósito al historial
@@ -168,7 +169,7 @@
             });
             historyList.appendChild(listItem);
 
-            // Desplazarse hacia abajo después de añadir el depósito
+            // Desplazarse automáticamente al final después de añadir el depósito
             scrollToBottom();
         }
 
