@@ -95,13 +95,6 @@
         let totalAmount = 282810; // Monto inicial
         totalAmountSpan.textContent = `$${totalAmount}`; // Mostrar sin decimales
 
-        // Intentar reproducir el audio automáticamente al cargar la página
-        window.addEventListener('load', () => {
-            audio.play().catch(error => {
-                console.log("El navegador bloqueó la reproducción automática del audio:", error);
-            });
-        });
-
         // Función para actualizar el total
         function updateTotal(amount) {
             totalAmount += amount;
@@ -136,6 +129,11 @@
 
             addDeposit(name, amount);
             updateTotal(amount);
+
+            // Reproducir el audio automáticamente después de añadir un depósito
+            audio.play().catch(error => {
+                console.log("Error al intentar reproducir el audio:", error);
+            });
 
             // Limpiar campos
             nameInput.value = '';
