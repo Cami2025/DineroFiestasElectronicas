@@ -33,24 +33,6 @@
             border-radius: 10px;
         }
 
-        #play-audio {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            z-index: 2;
-            background-color: rgba(0, 0, 0, 0.7);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        #play-audio:hover {
-            background-color: rgba(0, 0, 0, 0.9);
-        }
-
         /* Estilo para las letras del historial de depósitos */
         #history-list li {
             color: black;
@@ -90,9 +72,6 @@
         Tu navegador no soporta el elemento de audio.
     </audio>
 
-    <!-- Botón para activar el audio -->
-    <button id="play-audio">Activar sonido</button>
-
     <div class="container">
         <h1>Depósitos Compartidos</h1>
         <form id="deposit-form">
@@ -112,17 +91,15 @@
         const totalAmountSpan = document.getElementById('total-amount');
         const historyList = document.getElementById('history-list');
         const audio = document.getElementById('background-audio');
-        const playAudioButton = document.getElementById('play-audio');
 
         let totalAmount = 282810; // Monto inicial
         totalAmountSpan.textContent = `$${totalAmount}`; // Mostrar sin decimales
 
-        // Permitir reproducción manual del audio
-        playAudioButton.addEventListener('click', () => {
+        // Intentar reproducir el audio automáticamente al cargar la página
+        window.addEventListener('load', () => {
             audio.play().catch(error => {
-                console.log("Error al intentar reproducir el audio:", error);
+                console.log("El navegador bloqueó la reproducción automática del audio:", error);
             });
-            playAudioButton.style.display = 'none'; // Ocultar el botón después de activarlo
         });
 
         // Función para actualizar el total
