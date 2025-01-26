@@ -5,6 +5,18 @@ export default defineConfig({
   plugins: [],
   server: {
     host: '0.0.0.0',
-    hmr: true, // Change this line to false disable auto-refreshing.
+    hmr: {
+      protocol: 'ws', // Use WebSocket protocol for Hot Module Replacement
+      port: 3000,    // Default HMR port
+    },
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        entryFileNames: '[name].js',
+        chunkFileNames: '[name].js',
+        assetFileNames: '[name].[ext]'
+      }
+    }
   }
-})
+});
