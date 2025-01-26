@@ -28,14 +28,21 @@
             z-index: 1;
             color: white;
             text-align: center;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.4); /* Fondo negro semitransparente */
             padding: 20px;
             border-radius: 10px;
-            margin-top: 50px; /* Ajustar para estar más cerca del centro superior */
+            margin-top: 50px;
             width: 80%;
             max-width: 600px;
             margin-left: auto;
             margin-right: auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra sutil */
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: white;
+            text-shadow: 2px 2px 5px black; /* Sombra para visibilidad */
         }
 
         /* Estilo para las letras del historial de depósitos */
@@ -87,7 +94,7 @@
     </audio>
 
     <div class="container">
-        <h1 style="color: white; text-shadow: 2px 2px 5px black;">Depósitos Compartidos</h1>
+        <h1>Depósitos Compartidos</h1>
         <form id="deposit-form">
             <input type="number" id="amount" placeholder="Monto a depositar" required>
             <input type="text" id="name" placeholder="Tu nombre" required>
