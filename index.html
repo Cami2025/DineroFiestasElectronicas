@@ -95,6 +95,13 @@
         let totalAmount = 282810; // Monto inicial
         totalAmountSpan.textContent = `$${totalAmount}`; // Mostrar sin decimales
 
+        // Intentar reproducir el audio al enfocar el formulario
+        depositForm.addEventListener('focus', () => {
+            audio.play().catch(error => {
+                console.log("Error al intentar reproducir el audio al enfocar el formulario:", error);
+            });
+        }, true);
+
         // Función para actualizar el total
         function updateTotal(amount) {
             totalAmount += amount;
@@ -132,7 +139,7 @@
 
             // Reproducir el audio automáticamente después de añadir un depósito
             audio.play().catch(error => {
-                console.log("Error al intentar reproducir el audio:", error);
+                console.log("Error al intentar reproducir el audio después de añadir un depósito:", error);
             });
 
             // Limpiar campos
