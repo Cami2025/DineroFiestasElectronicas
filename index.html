@@ -55,6 +55,15 @@
         }
 
         /* Estilo para las letras del historial de depósitos */
+        #history-list {
+            max-height: 300px; /* Altura máxima para permitir desplazamiento */
+            overflow-y: auto; /* Habilitar scroll vertical */
+            margin-top: 10px;
+            background-color: rgba(0, 0, 0, 0.3); /* Fondo semitransparente */
+            padding: 10px;
+            border-radius: 5px;
+        }
+
         #history-list li {
             color: black;
             background-color: rgba(255, 255, 255, 0.8);
@@ -140,6 +149,11 @@
             totalAmountSpan.textContent = `$${totalAmount}`; // Sin decimales
         }
 
+        // Función para desplazarse automáticamente hacia abajo
+        function scrollToBottom() {
+            historyList.scrollTop = historyList.scrollHeight;
+        }
+
         // Función para añadir un depósito al historial
         function addDeposit(name, amount) {
             const listItem = document.createElement('li');
@@ -153,6 +167,9 @@
                 updateTotal(-amount); // Resta el monto eliminado
             });
             historyList.appendChild(listItem);
+
+            // Desplazarse hacia abajo después de añadir el depósito
+            scrollToBottom();
         }
 
         // Manejo del formulario
