@@ -46,3 +46,26 @@ depositForm.addEventListener('submit', (event) => {
     nameInput.value = '';
     amountInput.value = '';
 });
+// Función para desplazarse automáticamente hacia abajo
+function scrollToBottom() {
+    historyList.scrollTop = historyList.scrollHeight;
+}
+
+// Modificar la función `addDeposit` para incluir el desplazamiento automático
+function addDeposit(name, amount) {
+    const listItem = document.createElement('li');
+    listItem.innerHTML = `
+        ${name} depositó $${amount} el ${new Date().toLocaleDateString()}
+        <button class="delete-button">Eliminar</button>
+    `;
+    const deleteButton = listItem.querySelector('.delete-button');
+    deleteButton.addEventListener('click', () => {
+        historyList.removeChild(listItem);
+        updateTotal(-amount); // Resta el monto eliminado
+    });
+    historyList.appendChild(listItem);
+
+    // Desplazarse hacia abajo después de añadir el depósito
+    scrollToBottom();
+}
+
