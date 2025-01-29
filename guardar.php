@@ -1,23 +1,26 @@
 <?php
-// Conexión a SQLite
-$db = new PDO("sqlite:montos.db");
+require 'vendor/autoload.php';
+
+use Kreait\Firebase\Factory;
+
+// Configura Firebase
+$factory = (new Factory)
+    ->withServiceAccount('firebase-credentials.json') // Asegúrate de subir tu archivo JSON de credenciales de Firebase
+    ->withDatabaseUri('https://fiestasamigas.firebaseio.com/');
+
+$database = $factory->createFirestore();
+$firestore = $database->database();
 
 // Obtener datos enviados desde el frontend
-$nombre = $_POST['nombre'];
-$monto = $_POST['monto'];
+$nombre = $_POST['nombre'] ?? 'Desconocido';
+$monto = (float) ($_POST['monto'] ?? 0);
 
-// Actualizar el monto total
-$db->exec("UPDATE total SET monto_total = monto_total + $monto");
+// Guardar en Firebase Firestore
+$depositoRef = $firestore->collection('depositos')->add([
+    'nombre' => $nombre,
+    'monto' => $monto,
+    'fecha' => date('Y-m-d H:i:s')
+]);
 
-// Insertar en el historial de depósitos
-$stmt = $db->prepare("INSERT INTO depositos (nombre, monto) VALUES (:nombre, :monto)");
-$stmt->bindValue(':nombre', $nombre);
-$stmt->bindValue(':monto', $monto);
-$stmt->execute();
-
-// Obtener el nuevo monto total
-$result = $db->query("SELECT monto_total FROM total");
-$total = $result->fetch(PDO::FETCH_ASSOC)['monto_total'];
-
-echo json_encode(["success" => true, "total" => $total]);
+echo json_encode(["success" => true, "message" => "Depósito guardado en Firebase"]);
 ?>
