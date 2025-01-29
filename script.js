@@ -1,4 +1,21 @@
-const BACKEND_URL = "https://dinero-fiestas-electronicas.vercel.app/api";
+// Importar Firebase y Firestore
+import { initializeApp } from "firebase/app";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, query, where } from "firebase/firestore";
+
+// Configuración de Firebase (Reemplaza con tus credenciales)
+const firebaseConfig = {
+  apiKey: "AIzaSyD6cY2-28Qrygz6oJAekcusFyhI-D_BykE",
+  authDomain: "fiestasamigas.firebaseapp.com",
+  projectId: "fiestasamigas",
+  storageBucket: "fiestasamigas.firebasestorage.app",
+  messagingSenderId: "213890432584",
+  appId: "1:213890432584:web:bd0e57b2a11edddd33227d",
+  measurementId: "G-KDLW7FW04R"
+};
+
+// Inicializar Firebase y Firestore
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 const depositForm = document.getElementById('deposit-form');
 const amountInput = document.getElementById('amount');
@@ -6,85 +23,74 @@ const nameInput = document.getElementById('name');
 const totalAmountSpan = document.getElementById('total-amount');
 const historyList = document.getElementById('history-list');
 
-let totalAmount = 0; // Monto inicial, se cargará dinámicamente del backend
+let totalAmount = 0;
 
-// Función para actualizar el total dinámicamente
+// Función para actualizar el total en la pantalla
 function updateTotal(amount) {
     totalAmount += amount;
     totalAmountSpan.textContent = `$${totalAmount.toLocaleString()}`;
 }
 
-// Función para añadir un depósito al historial
-function addDepositToList(name, amount, date) {
+// Función para añadir un depósito al historial en pantalla
+function addDepositToList(id, name, amount, date) {
     const listItem = document.createElement('li');
     listItem.innerHTML = `
         ${name} depositó $${amount.toLocaleString()} el ${date}
-        <button class="delete-button">Eliminar</button>
+        <button class="delete-button" data-id="${id}">Eliminar</button>
     `;
+    
     const deleteButton = listItem.querySelector('.delete-button');
     deleteButton.addEventListener('click', async () => {
         historyList.removeChild(listItem);
-        updateTotal(-amount); // Resta el monto eliminado
-        await deleteDeposit(name, amount, date); // Llamada al backend para eliminar el depósito
+        updateTotal(-amount);
+        await deleteDeposit(id);
     });
-    historyList.appendChild(listItem);
 
-    // Desplazarse hacia abajo después de añadir el depósito
+    historyList.appendChild(listItem);
     scrollToBottom();
 }
 
-// Función para cargar los depósitos del backend
+// Función para cargar los depósitos desde Firebase Firestore
 async function loadDeposits() {
     try {
-        const response = await fetch(`${BACKEND_URL}/get-deposits`);
-        const deposits = await response.json();
-
-        // Actualizar total y mostrar depósitos en el historial
-        deposits.forEach(deposit => {
-            addDepositToList(deposit.name, deposit.amount, deposit.date);
-            totalAmount += deposit.amount;
+        const querySnapshot = await getDocs(collection(db, "depositos"));
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            addDepositToList(doc.id, data.name, data.amount, data.date);
+            totalAmount += data.amount;
         });
-        updateTotal(0); // Actualizar la vista del monto total
+        updateTotal(0);
     } catch (error) {
         console.error("Error al cargar los depósitos:", error);
     }
 }
 
-// Función para guardar un depósito en el backend
+// Función para guardar un depósito en Firebase Firestore
 async function saveDeposit(name, amount) {
     try {
-        const response = await fetch(`${BACKEND_URL}/add-deposit`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ name, amount, date: new Date().toLocaleDateString() }),
+        const docRef = await addDoc(collection(db, "depositos"), {
+            name: name,
+            amount: amount,
+            date: new Date().toLocaleDateString()
         });
-        const data = await response.json();
-        console.log("Depósito guardado:", data.message);
+        console.log("Depósito guardado con ID:", docRef.id);
+        return docRef.id;
     } catch (error) {
         console.error("Error al guardar el depósito:", error);
     }
 }
 
-// Función para eliminar un depósito en el backend
-async function deleteDeposit(name, amount, date) {
+// Función para eliminar un depósito en Firebase Firestore
+async function deleteDeposit(id) {
     try {
-        const response = await fetch(`${BACKEND_URL}/delete-deposit`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ name, amount, date }),
-        });
-        const data = await response.json();
-        console.log("Depósito eliminado:", data.message);
+        await deleteDoc(query(collection(db, "depositos"), where("__name__", "==", id)));
+        console.log("Depósito eliminado con ID:", id);
     } catch (error) {
         console.error("Error al eliminar el depósito:", error);
     }
 }
 
-// Manejo del formulario
+// Manejo del formulario de depósitos
 depositForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     const name = nameInput.value.trim();
@@ -95,17 +101,17 @@ depositForm.addEventListener('submit', async (event) => {
         return;
     }
 
-    // Añadir depósito localmente y enviarlo al backend
-    addDepositToList(name, amount, new Date().toLocaleDateString());
+    // Añadir depósito a la pantalla y a Firebase
+    const id = await saveDeposit(name, amount);
+    addDepositToList(id, name, amount, new Date().toLocaleDateString());
     updateTotal(amount);
-    await saveDeposit(name, amount);
 
-    // Limpiar campos
+    // Limpiar formulario
     nameInput.value = '';
     amountInput.value = '';
 });
 
-// Función para desplazarse automáticamente hacia abajo
+// Función para desplazarse al final de la lista automáticamente
 function scrollToBottom() {
     historyList.scrollTop = historyList.scrollHeight;
 }
