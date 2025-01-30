@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Depósitos Compartidos</title>
     <link rel="stylesheet" href="style.css">
+
     <style>
         /* Asegúrate de que el video cubra toda la pantalla */
         body {
@@ -14,7 +15,7 @@
             color: #333;
             margin: 0;
             padding: 0;
-            overflow: auto; /* Permitir desplazamiento */
+            overflow: auto;
         }
 
         video#background-video {
@@ -32,7 +33,7 @@
             z-index: 1;
             color: white;
             text-align: center;
-            background-color: rgba(0, 0, 0, 0.3); /* Cambiado para hacer transparente */
+            background-color: rgba(0, 0, 0, 0.3);
             padding: 20px;
             border-radius: 10px;
             margin-top: 50px;
@@ -40,37 +41,36 @@
             max-width: 600px;
             margin-left: auto;
             margin-right: auto;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra sutil */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
         h1 {
             margin-bottom: 20px;
             color: white;
-            text-shadow: 2px 2px 5px black; /* Sombra para visibilidad */
+            text-shadow: 2px 2px 5px black;
         }
 
         h2, h3 {
             margin-top: 20px;
             color: white;
             text-align: center;
-            background-color: rgba(0, 0, 0, 0.5); /* Fondo semitransparente */
+            background-color: rgba(0, 0, 0, 0.5);
             padding: 10px;
             border-radius: 5px;
         }
 
-        /* Estilo para las letras del historial de depósitos */
         #history-list {
-            max-height: 300px; /* Altura máxima para permitir desplazamiento */
-            overflow-y: scroll; /* Forzar la barra de desplazamiento */
+            max-height: 300px;
+            overflow-y: scroll;
             margin-top: 10px;
-            background-color: rgba(0, 0, 0, 0.3); /* Fondo semitransparente */
+            background-color: rgba(0, 0, 0, 0.3);
             padding: 10px;
             border-radius: 5px;
-            scrollbar-width: none; /* Ocultar scrollbar en Firefox */
+            scrollbar-width: none;
         }
 
         #history-list::-webkit-scrollbar {
-            display: none; /* Ocultar scrollbar en Chrome, Edge y Safari */
+            display: none;
         }
 
         #history-list li {
@@ -97,7 +97,6 @@
             background-color: darkred;
         }
 
-        /* Ajustes específicos para hacer el formulario más compacto */
         form {
             margin-bottom: 10px;
         }
@@ -128,82 +127,14 @@
             <button type="submit">Añadir Depósito</button>
         </form>
         <!-- Monto total -->
-        <h2>Monto Total: <span id="total-amount">$282810</span></h2>
+        <h2>Monto Total: <span id="total-amount">$0</span></h2>
         <!-- Historial -->
         <h3>Historial de Depósitos:</h3>
         <ul id="history-list"></ul>
     </div>
 
-    <script>
-        const depositForm = document.getElementById('deposit-form');
-        const amountInput = document.getElementById('amount');
-        const nameInput = document.getElementById('name');
-        const totalAmountSpan = document.getElementById('total-amount');
-        const historyList = document.getElementById('history-list');
-        const audio = document.getElementById('background-audio');
-
-        let totalAmount = 282810; // Monto inicial
-        totalAmountSpan.textContent = `$${totalAmount}`; // Mostrar sin decimales
-
-        // Intentar reproducir el audio al enfocar el formulario
-        depositForm.addEventListener('focus', () => {
-            audio.play().catch(error => {
-                console.log("Error al intentar reproducir el audio al enfocar el formulario:", error);
-            });
-        }, true);
-
-        // Función para actualizar el total
-        function updateTotal(amount) {
-            totalAmount += amount;
-            totalAmountSpan.textContent = `$${totalAmount}`; // Sin decimales
-        }
-
-        // Función para desplazarse automáticamente hacia el final de la lista
-        function scrollToBottom() {
-            historyList.scrollTop = historyList.scrollHeight; // Desplaza al final
-        }
-
-        // Función para añadir un depósito al historial
-        function addDeposit(name, amount) {
-            const listItem = document.createElement('li');
-            listItem.innerHTML = `
-                ${name} depositó $${amount} el ${new Date().toLocaleDateString()}
-                <button class="delete-button">Eliminar</button>
-            `;
-            const deleteButton = listItem.querySelector('.delete-button');
-            deleteButton.addEventListener('click', () => {
-                historyList.removeChild(listItem);
-                updateTotal(-amount); // Resta el monto eliminado
-            });
-            historyList.appendChild(listItem);
-
-            // Desplazarse automáticamente al final después de añadir el depósito
-            scrollToBottom();
-        }
-
-        // Manejo del formulario
-        depositForm.addEventListener('submit', (event) => {
-            event.preventDefault();
-            const name = nameInput.value.trim();
-            const amount = parseInt(amountInput.value); // Convertir a entero
-
-            if (!name || isNaN(amount) || amount <= 0) {
-                alert('Por favor, ingresa un nombre y un monto válido.');
-                return;
-            }
-
-            addDeposit(name, amount);
-            updateTotal(amount);
-
-            // Reproducir el audio automáticamente después de añadir un depósito
-            audio.play().catch(error => {
-                console.log("Error al intentar reproducir el audio después de añadir un depósito:", error);
-            });
-
-            // Limpiar campos
-            nameInput.value = '';
-            amountInput.value = '';
-        });
-    </script>
+    <!-- Importar Firebase y el script -->
+    <script type="module" src="firebase-config.js"></script>
+    <script type="module" src="script.js"></script> 
 </body>
 </html>
