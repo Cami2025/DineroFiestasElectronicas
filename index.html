@@ -3,22 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nido de Ideas</title>
+    <title>Depósitos Compartidos</title>
+    <link rel="stylesheet" href="style.css">
     <style>
-        /* Estilos generales */
+        /* Asegúrate de que el video cubra toda la pantalla */
         body {
             font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            text-align: center;
+            color: #333;
             margin: 0;
             padding: 0;
-            color: #333;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            overflow: auto; /* Permitir desplazamiento */
         }
 
-        /* Video de fondo */
-        #background-video {
+        video#background-video {
             position: fixed;
             top: 0;
             left: 0;
@@ -28,223 +27,183 @@
             z-index: -1;
         }
 
-        /* Contenedor principal */
         .container {
-            background-color: rgba(255, 255, 255, 0.8);
-            border-radius: 10px;
-            padding: 20px;
-            max-width: 600px;
+            position: relative;
+            z-index: 1;
+            color: white;
             text-align: center;
+            background-color: rgba(0, 0, 0, 0.3); /* Cambiado para hacer transparente */
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 50px;
+            width: 80%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra sutil */
         }
 
         h1 {
-            font-size: 2rem;
             margin-bottom: 20px;
-        }
-
-        /* Formulario */
-        .idea-form label {
-            display: block;
-            margin: 10px 0 5px;
-        }
-
-        .idea-form input,
-        .idea-form select {
-            width: calc(100% - 20px);
-            margin: 0 auto 15px;
-            padding: 10px;
-            font-size: 1rem;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            display: block;
-        }
-
-        .add-button {
-            display: block;
-            width: calc(100% - 40px);
-            margin: 0 auto;
-            padding: 10px 20px;
-            font-size: 1rem;
-            border: none;
-            border-radius: 5px;
-            background-color: red;
             color: white;
-            cursor: pointer;
+            text-shadow: 2px 2px 5px black; /* Sombra para visibilidad */
         }
 
-        .add-button:hover {
-            background-color: darkred;
-        }
-
-        /* Casillas de categorías */
-        .categories {
-            display: flex;
-            justify-content: space-around;
+        h2, h3 {
             margin-top: 20px;
-        }
-
-        .category-container {
-            width: 100px;
-            border-radius: 5px;
-            padding: 10px;
-            text-align: center;
             color: white;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.5); /* Fondo semitransparente */
+            padding: 10px;
+            border-radius: 5px;
         }
 
-        .category-container ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
+        /* Estilo para las letras del historial de depósitos */
+        #history-list {
+            max-height: 300px; /* Altura máxima para permitir desplazamiento */
+            overflow-y: scroll; /* Forzar la barra de desplazamiento */
+            margin-top: 10px;
+            background-color: rgba(0, 0, 0, 0.3); /* Fondo semitransparente */
+            padding: 10px;
+            border-radius: 5px;
+            scrollbar-width: none; /* Ocultar scrollbar en Firefox */
         }
 
-        .category-container.escribir {
-            background-color: #007bff;
+        #history-list::-webkit-scrollbar {
+            display: none; /* Ocultar scrollbar en Chrome, Edge y Safari */
         }
 
-        .category-container.trabajo {
-            background-color: #ffc107;
+        #history-list li {
             color: black;
-        }
-
-        .category-container.personal {
-            background-color: #28a745;
-        }
-
-        .category-container.cosas {
-            background-color: #6a0dad;
-        }
-
-        .category-container.ia {
-            background-color: #000000; /* Negro */
-        }
-
-        .idea-item {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 5px;
+            border-radius: 5px;
+            margin: 5px 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 5px 10px;
-            margin: 5px 0;
-            border-radius: 3px;
         }
 
-        .idea-item span {
-            flex: 1;
+        #history-list li button {
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        #history-list li button:hover {
+            background-color: darkred;
+        }
+
+        /* Ajustes específicos para hacer el formulario más compacto */
+        form {
+            margin-bottom: 10px;
+        }
+
+        input, button {
+            margin: 5px 0;
         }
     </style>
 </head>
 <body>
-    <video autoplay muted loop id="background-video">
-        <source src="/static/sinapsis1.mp4" type="video/mp4">
-        Tu navegador no soporta videos en HTML5.
+    <!-- Video de fondo -->
+    <video id="background-video" autoplay loop muted>
+        <source src="/creamfields.mp4" type="video/mp4">
+        Tu navegador no soporta el elemento de video.
     </video>
-    <div class="container">
-        <h1>Nido de Ideas <span>🧠💡</span></h1>
-        <form class="idea-form" id="idea-form">
-            <label for="idea-input">Ingresa tu idea</label>
-            <input type="text" id="idea-input" placeholder="Escribe aquí tu idea..." required>
-            <label for="category-select">Selecciona una categoría</label>
-            <select id="category-select">
-                <option value="escribir">Escribir</option>
-                <option value="trabajo">Trabajo</option>
-                <option value="personal">Personal</option>
-                <option value="cosas">Cosas que hacer</option>
-                <option value="ia">IA</option>
-            </select>
-            <button type="submit" class="add-button">Añadir Idea</button>
-        </form>
 
-        <!-- Casillas de colores para cada categoría -->
-        <div class="categories">
-            <div class="category-container escribir">
-                <h3>Escribir</h3>
-                <ul id="escribir"></ul>
-            </div>
-            <div class="category-container trabajo">
-                <h3>Trabajo</h3>
-                <ul id="trabajo"></ul>
-            </div>
-            <div class="category-container personal">
-                <h3>Personal</h3>
-                <ul id="personal"></ul>
-            </div>
-            <div class="category-container cosas">
-                <h3>Cosas que hacer</h3>
-                <ul id="cosas"></ul>
-            </div>
-            <div class="category-container ia">
-                <h3>IA</h3>
-                <ul id="ia"></ul>
-            </div>
-        </div>
+    <!-- Audio de fondo -->
+    <audio id="background-audio" loop>
+        <source src="/audiofile.mp3" type="audio/mp3">
+        Tu navegador no soporta el elemento de audio.
+    </audio>
+
+    <div class="container">
+        <h1>Depósitos Compartidos</h1>
+        <form id="deposit-form">
+            <input type="number" id="amount" placeholder="Monto a depositar" required>
+            <input type="text" id="name" placeholder="Tu nombre" required>
+            <button type="submit">Añadir Depósito</button>
+        </form>
+        <!-- Monto total -->
+        <h2>Monto Total: <span id="total-amount">$282810</span></h2>
+        <!-- Historial -->
+        <h3>Historial de Depósitos:</h3>
+        <ul id="history-list"></ul>
     </div>
 
     <script>
-        const form = document.getElementById('idea-form');
-        const ideaInput = document.getElementById('idea-input');
-        const categorySelect = document.getElementById('category-select');
+        const depositForm = document.getElementById('deposit-form');
+        const amountInput = document.getElementById('amount');
+        const nameInput = document.getElementById('name');
+        const totalAmountSpan = document.getElementById('total-amount');
+        const historyList = document.getElementById('history-list');
+        const audio = document.getElementById('background-audio');
 
-        // Cargar ideas desde LocalStorage al iniciar
-        window.onload = () => {
-            const savedIdeas = JSON.parse(localStorage.getItem('ideas')) || {};
-            for (const category in savedIdeas) {
-                savedIdeas[category].forEach(idea => {
-                    addIdeaToCategory(idea, category);
-                });
-            }
-        };
+        let totalAmount = 282810; // Monto inicial
+        totalAmountSpan.textContent = `$${totalAmount}`; // Mostrar sin decimales
 
-        // Manejar el envío del formulario
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-
-            const idea = ideaInput.value.trim();
-            const category = categorySelect.value;
-
-            if (idea) {
-                addIdeaToCategory(idea, category);
-                saveIdeaToLocalStorage(idea, category);
-                ideaInput.value = ''; // Limpiar el campo de texto
-            }
-        });
-
-        // Agregar idea a la categoría
-        function addIdeaToCategory(idea, category) {
-            const list = document.getElementById(category);
-            const listItem = document.createElement('li');
-            listItem.className = 'idea-item';
-            listItem.innerHTML = `
-                <span>${idea}</span>
-                <input type="checkbox" />
-            `;
-            listItem.querySelector('input').addEventListener('change', function () {
-                listItem.remove();
-                removeIdeaFromLocalStorage(idea, category);
+        // Intentar reproducir el audio al enfocar el formulario
+        depositForm.addEventListener('focus', () => {
+            audio.play().catch(error => {
+                console.log("Error al intentar reproducir el audio al enfocar el formulario:", error);
             });
-            list.appendChild(listItem);
+        }, true);
+
+        // Función para actualizar el total
+        function updateTotal(amount) {
+            totalAmount += amount;
+            totalAmountSpan.textContent = `$${totalAmount}`; // Sin decimales
         }
 
-        // Guardar idea en LocalStorage
-        function saveIdeaToLocalStorage(idea, category) {
-            const savedIdeas = JSON.parse(localStorage.getItem('ideas')) || {};
-            if (!savedIdeas[category]) {
-                savedIdeas[category] = [];
-            }
-            savedIdeas[category].push(idea);
-            localStorage.setItem('ideas', JSON.stringify(savedIdeas));
+        // Función para desplazarse automáticamente hacia el final de la lista
+        function scrollToBottom() {
+            historyList.scrollTop = historyList.scrollHeight; // Desplaza al final
         }
 
-        // Eliminar idea de LocalStorage
-        function removeIdeaFromLocalStorage(idea, category) {
-            const savedIdeas = JSON.parse(localStorage.getItem('ideas')) || {};
-            if (savedIdeas[category]) {
-                savedIdeas[category] = savedIdeas[category].filter(savedIdea => savedIdea !== idea);
-                if (savedIdeas[category].length === 0) {
-                    delete savedIdeas[category];
-                }
-            }
-            localStorage.setItem('ideas', JSON.stringify(savedIdeas));
+        // Función para añadir un depósito al historial
+        function addDeposit(name, amount) {
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `
+                ${name} depositó $${amount} el ${new Date().toLocaleDateString()}
+                <button class="delete-button">Eliminar</button>
+            `;
+            const deleteButton = listItem.querySelector('.delete-button');
+            deleteButton.addEventListener('click', () => {
+                historyList.removeChild(listItem);
+                updateTotal(-amount); // Resta el monto eliminado
+            });
+            historyList.appendChild(listItem);
+
+            // Desplazarse automáticamente al final después de añadir el depósito
+            scrollToBottom();
         }
+
+        // Manejo del formulario
+        depositForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const name = nameInput.value.trim();
+            const amount = parseInt(amountInput.value); // Convertir a entero
+
+            if (!name || isNaN(amount) || amount <= 0) {
+                alert('Por favor, ingresa un nombre y un monto válido.');
+                return;
+            }
+
+            addDeposit(name, amount);
+            updateTotal(amount);
+
+            // Reproducir el audio automáticamente después de añadir un depósito
+            audio.play().catch(error => {
+                console.log("Error al intentar reproducir el audio después de añadir un depósito:", error);
+            });
+
+            // Limpiar campos
+            nameInput.value = '';
+            amountInput.value = '';
+        });
     </script>
 </body>
 </html>
