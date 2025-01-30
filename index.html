@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Depósitos Compartidos</title>
-    <link rel="stylesheet" href="style.css">
-
+    <title>Nido de Ideas</title>
     <style>
-        /* Asegúrate de que el video cubra toda la pantalla */
+        /* Estilos generales */
         body {
             font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            text-align: center;
-            color: #333;
             margin: 0;
             padding: 0;
-            overflow: auto;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
 
-        video#background-video {
+        /* Video de fondo */
+        #background-video {
             position: fixed;
             top: 0;
             left: 0;
@@ -28,113 +28,223 @@
             z-index: -1;
         }
 
+        /* Contenedor principal */
         .container {
-            position: relative;
-            z-index: 1;
-            color: white;
-            text-align: center;
-            background-color: rgba(0, 0, 0, 0.3);
-            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
             border-radius: 10px;
-            margin-top: 50px;
-            width: 80%;
+            padding: 20px;
             max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
         }
 
         h1 {
+            font-size: 2rem;
             margin-bottom: 20px;
-            color: white;
-            text-shadow: 2px 2px 5px black;
         }
 
-        h2, h3 {
-            margin-top: 20px;
-            color: white;
-            text-align: center;
-            background-color: rgba(0, 0, 0, 0.5);
+        /* Formulario */
+        .idea-form label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        .idea-form input,
+        .idea-form select {
+            width: calc(100% - 20px);
+            margin: 0 auto 15px;
             padding: 10px;
+            font-size: 1rem;
             border-radius: 5px;
+            border: 1px solid #ccc;
+            display: block;
         }
 
-        #history-list {
-            max-height: 300px;
-            overflow-y: scroll;
-            margin-top: 10px;
-            background-color: rgba(0, 0, 0, 0.3);
-            padding: 10px;
-            border-radius: 5px;
-            scrollbar-width: none;
-        }
-
-        #history-list::-webkit-scrollbar {
-            display: none;
-        }
-
-        #history-list li {
-            color: black;
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 5px;
-            border-radius: 5px;
-            margin: 5px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        #history-list li button {
-            background-color: red;
-            color: white;
+        .add-button {
+            display: block;
+            width: calc(100% - 40px);
+            margin: 0 auto;
+            padding: 10px 20px;
+            font-size: 1rem;
             border: none;
             border-radius: 5px;
-            padding: 5px 10px;
+            background-color: red;
+            color: white;
             cursor: pointer;
         }
 
-        #history-list li button:hover {
+        .add-button:hover {
             background-color: darkred;
         }
 
-        form {
-            margin-bottom: 10px;
+        /* Casillas de categorías */
+        .categories {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
         }
 
-        input, button {
+        .category-container {
+            width: 100px;
+            border-radius: 5px;
+            padding: 10px;
+            text-align: center;
+            color: white;
+        }
+
+        .category-container ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .category-container.escribir {
+            background-color: #007bff;
+        }
+
+        .category-container.trabajo {
+            background-color: #ffc107;
+            color: black;
+        }
+
+        .category-container.personal {
+            background-color: #28a745;
+        }
+
+        .category-container.cosas {
+            background-color: #6a0dad;
+        }
+
+        .category-container.ia {
+            background-color: #000000; /* Negro */
+        }
+
+        .idea-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 5px 10px;
             margin: 5px 0;
+            border-radius: 3px;
+        }
+
+        .idea-item span {
+            flex: 1;
         }
     </style>
 </head>
 <body>
-    <!-- Video de fondo -->
-    <video id="background-video" autoplay loop muted>
-        <source src="/creamfields.mp4" type="video/mp4">
-        Tu navegador no soporta el elemento de video.
+    <video autoplay muted loop id="background-video">
+        <source src="/static/sinapsis1.mp4" type="video/mp4">
+        Tu navegador no soporta videos en HTML5.
     </video>
-
-    <!-- Audio de fondo -->
-    <audio id="background-audio" loop>
-        <source src="/audiofile.mp3" type="audio/mp3">
-        Tu navegador no soporta el elemento de audio.
-    </audio>
-
     <div class="container">
-        <h1>Depósitos Compartidos</h1>
-        <form id="deposit-form">
-            <input type="number" id="amount" placeholder="Monto a depositar" required>
-            <input type="text" id="name" placeholder="Tu nombre" required>
-            <button type="submit">Añadir Depósito</button>
+        <h1>Nido de Ideas <span>🧠💡</span></h1>
+        <form class="idea-form" id="idea-form">
+            <label for="idea-input">Ingresa tu idea</label>
+            <input type="text" id="idea-input" placeholder="Escribe aquí tu idea..." required>
+            <label for="category-select">Selecciona una categoría</label>
+            <select id="category-select">
+                <option value="escribir">Escribir</option>
+                <option value="trabajo">Trabajo</option>
+                <option value="personal">Personal</option>
+                <option value="cosas">Cosas que hacer</option>
+                <option value="ia">IA</option>
+            </select>
+            <button type="submit" class="add-button">Añadir Idea</button>
         </form>
-        <!-- Monto total -->
-        <h2>Monto Total: <span id="total-amount">$0</span></h2>
-        <!-- Historial -->
-        <h3>Historial de Depósitos:</h3>
-        <ul id="history-list"></ul>
+
+        <!-- Casillas de colores para cada categoría -->
+        <div class="categories">
+            <div class="category-container escribir">
+                <h3>Escribir</h3>
+                <ul id="escribir"></ul>
+            </div>
+            <div class="category-container trabajo">
+                <h3>Trabajo</h3>
+                <ul id="trabajo"></ul>
+            </div>
+            <div class="category-container personal">
+                <h3>Personal</h3>
+                <ul id="personal"></ul>
+            </div>
+            <div class="category-container cosas">
+                <h3>Cosas que hacer</h3>
+                <ul id="cosas"></ul>
+            </div>
+            <div class="category-container ia">
+                <h3>IA</h3>
+                <ul id="ia"></ul>
+            </div>
+        </div>
     </div>
 
-    <!-- Importar Firebase y el script -->
-    <script type="module" src="firebase-config.js"></script>
-    <script type="module" src="script.js"></script> 
+    <script>
+        const form = document.getElementById('idea-form');
+        const ideaInput = document.getElementById('idea-input');
+        const categorySelect = document.getElementById('category-select');
+
+        // Cargar ideas desde LocalStorage al iniciar
+        window.onload = () => {
+            const savedIdeas = JSON.parse(localStorage.getItem('ideas')) || {};
+            for (const category in savedIdeas) {
+                savedIdeas[category].forEach(idea => {
+                    addIdeaToCategory(idea, category);
+                });
+            }
+        };
+
+        // Manejar el envío del formulario
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const idea = ideaInput.value.trim();
+            const category = categorySelect.value;
+
+            if (idea) {
+                addIdeaToCategory(idea, category);
+                saveIdeaToLocalStorage(idea, category);
+                ideaInput.value = ''; // Limpiar el campo de texto
+            }
+        });
+
+        // Agregar idea a la categoría
+        function addIdeaToCategory(idea, category) {
+            const list = document.getElementById(category);
+            const listItem = document.createElement('li');
+            listItem.className = 'idea-item';
+            listItem.innerHTML = `
+                <span>${idea}</span>
+                <input type="checkbox" />
+            `;
+            listItem.querySelector('input').addEventListener('change', function () {
+                listItem.remove();
+                removeIdeaFromLocalStorage(idea, category);
+            });
+            list.appendChild(listItem);
+        }
+
+        // Guardar idea en LocalStorage
+        function saveIdeaToLocalStorage(idea, category) {
+            const savedIdeas = JSON.parse(localStorage.getItem('ideas')) || {};
+            if (!savedIdeas[category]) {
+                savedIdeas[category] = [];
+            }
+            savedIdeas[category].push(idea);
+            localStorage.setItem('ideas', JSON.stringify(savedIdeas));
+        }
+
+        // Eliminar idea de LocalStorage
+        function removeIdeaFromLocalStorage(idea, category) {
+            const savedIdeas = JSON.parse(localStorage.getItem('ideas')) || {};
+            if (savedIdeas[category]) {
+                savedIdeas[category] = savedIdeas[category].filter(savedIdea => savedIdea !== idea);
+                if (savedIdeas[category].length === 0) {
+                    delete savedIdeas[category];
+                }
+            }
+            localStorage.setItem('ideas', JSON.stringify(savedIdeas));
+        }
+    </script>
 </body>
 </html>
