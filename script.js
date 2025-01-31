@@ -19,12 +19,12 @@ const totalRef = ref(database, "totalMonto");
 
 // Función para obtener el monto total desde Firebase
 function obtenerTotal() {
-    get(totalRef)
-        .then((snapshot) => {
-            const total = snapshot.exists() ? snapshot.val() : 0;
-            totalAmountSpan.textContent = `$${total}`;
-        })
-        .catch((error) => console.error("❌ Error obteniendo total:", error));
+    onValue(totalRef, (snapshot) => {
+        const total = snapshot.exists() ? snapshot.val() : 0;
+        totalAmountSpan.textContent = `$${total}`;
+    }, {
+        onlyOnce: false // Escucha los cambios en tiempo real
+    });
 }
 
 // Función para actualizar el total en Firebase
@@ -91,13 +91,10 @@ function cargarDepositos() {
         } else {
             historyList.innerHTML = "<li>No hay depósitos registrados aún.</li>";
         }
+    }, {
+        onlyOnce: false // Mantener la escucha en tiempo real
     });
 }
-
-// Escuchar cambios en el monto total en Firebase
-onValue(totalRef, (snapshot) => {
-    totalAmountSpan.textContent = `$${snapshot.exists() ? snapshot.val() : 0}`;
-});
 
 // Manejo del formulario para agregar depósitos
 depositForm.addEventListener("submit", (event) => {
