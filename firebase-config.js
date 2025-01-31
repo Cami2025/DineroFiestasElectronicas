@@ -1,33 +1,22 @@
-// Importar la base de datos desde firebase_configuracion.js
-import { database } from "./firebase_configuracion.js";
-import { ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-database.js";
+// Importar Firebase y Realtime Database
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js";
+import { getDatabase } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-database.js";
 
-// Función para agregar un nuevo depósito
-function agregarDeposito(cantidad) {
-    const depositosRef = ref(database, 'depositos'); // Referencia a la base de datos
-    push(depositosRef, { 
-        cantidad: cantidad, 
-        fecha: new Date().toISOString() 
-    }).then(() => {
-        console.log("✅ Depósito agregado correctamente");
-    }).catch((error) => {
-        console.error("❌ Error al agregar depósito:", error);
-    });
-}
+// Configuración de Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyA4ZOaSkduTmMNmMQ-B1UtCDJtSK7JU9hA",
+  authDomain: "fiestas-a5462.firebaseapp.com",
+  databaseURL: "https://fiestas-a5462-default-rtdb.firebaseio.com",
+  projectId: "fiestas-a5462",
+  storageBucket: "fiestas-a5462.appspot.com",
+  messagingSenderId: "772543336072",
+  appId: "1:772543336072:web:b88c7f08a89f1dd3dcd93d",
+  measurementId: "G-317ZHZ47NW"
+};
 
-// Función para leer los depósitos y asegurarse de que se mantengan registrados
-function leerDepositos() {
-    const depositosRef = ref(database, 'depositos'); // Referencia a la base de datos
-    onValue(depositosRef, (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-            console.log("📌 Datos de depósitos registrados:", data);
-        } else {
-            console.log("⚠️ No hay depósitos registrados aún.");
-        }
-    });
-}
+// Inicializar Firebase
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
 
-// Llamar a la función para probar
-agregarDeposito(10000); // Prueba agregando un depósito
-leerDepositos(); // Verifica si los datos se guardan y leen correctamente
+// Exportar la base de datos para usarla en otros archivos
+export { database };
