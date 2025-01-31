@@ -1,4 +1,4 @@
-// Importar Firebase y Realtime Database
+ // Importar Firebase y Realtime Database
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js";
 import { getDatabase } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-database.js";
 
@@ -18,5 +18,5 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
-// Exportar la base de datos para usarla en otros archivos
+// Exportar la base de datos
 export { database };
