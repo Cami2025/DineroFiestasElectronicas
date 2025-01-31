@@ -1,22 +1,33 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+// Importar la base de datos desde firebase_configuracion.js
+import { database } from "./firebase_configuracion.js";
+import { ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-database.js";
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyA4ZOaSkduTmMNmMQ-B1UtCDJtSK7JU9hA",
-  authDomain: "fiestas-a5462.firebaseapp.com",
-  databaseURL: "https://fiestas-a5462-default-rtdb.firebaseio.com",
-  projectId: "fiestas-a5462",
-  storageBucket: "fiestas-a5462.firebasestorage.app",
-  messagingSenderId: "772543336072",
-  appId: "1:772543336072:web:b88c7f08a89f1dd3dcd93d",
-  measurementId: "G-317ZHZ47NW"
-};
+// Función para agregar un nuevo depósito
+function agregarDeposito(cantidad) {
+    const depositosRef = ref(database, 'depositos'); // Referencia a la base de datos
+    push(depositosRef, { 
+        cantidad: cantidad, 
+        fecha: new Date().toISOString() 
+    }).then(() => {
+        console.log("✅ Depósito agregado correctamente");
+    }).catch((error) => {
+        console.error("❌ Error al agregar depósito:", error);
+    });
+}
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+// Función para leer los depósitos y asegurarse de que se mantengan registrados
+function leerDepositos() {
+    const depositosRef = ref(database, 'depositos'); // Referencia a la base de datos
+    onValue(depositosRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            console.log("📌 Datos de depósitos registrados:", data);
+        } else {
+            console.log("⚠️ No hay depósitos registrados aún.");
+        }
+    });
+}
+
+// Llamar a la función para probar
+agregarDeposito(10000); // Prueba agregando un depósito
+leerDepositos(); // Verifica si los datos se guardan y leen correctamente
