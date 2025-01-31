@@ -1,101 +1,84 @@
-// Importar Firebase y Firestore
-import { initializeApp } from "firebase/app";
-import { getFirestore, collection, addDoc, getDocs, query, orderBy, deleteDoc, where } from "firebase/firestore";
+// Importar Firebase y la base de datos
+import { database } from "./firebase_configuracion.js";
+import { ref, push, remove, onValue, get } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-database.js";
 
-// Configuración de Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyD6cY2-28Qrygz6oJAekcusFyhI-D_BykE",
-  authDomain: "fiestasamigas.firebaseapp.com",
-  projectId: "fiestasamigas",
-  storageBucket: "fiestasamigas.firebasestorage.app",
-  messagingSenderId: "213890432584",
-  appId: "1:213890432584:web:bd0e57b2a11edddd33227d",
-  measurementId: "G-KDLW7FW04R"
-};
+// Referencias al DOM
+const depositForm = document.getElementById('deposit-form');
+const amountInput = document.getElementById('amount');
+const nameInput = document.getElementById('name');
+const totalAmountSpan = document.getElementById('total-amount');
+const historyList = document.getElementById('history-list');
+const audio = document.getElementById('background-audio');
 
-// Inicializar Firebase y Firestore
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+// Referencia en Firebase
+const depositosRef = ref(database, 'depositos');
+const totalRef = ref(database, 'totalMonto');
 
-const depositForm = document.getElementById("deposit-form");
-const amountInput = document.getElementById("amount");
-const nameInput = document.getElementById("name");
-const totalAmountSpan = document.getElementById("total-amount");
-const historyList = document.getElementById("history-list");
-
-let totalAmount = 0; // Monto inicial
-
-// **Función para actualizar el total en la interfaz**
-function updateTotal(amount) {
-    totalAmount += amount;
-    totalAmountSpan.textContent = `$${totalAmount.toLocaleString()}`;
-}
-
-// **Función para añadir un depósito a Firestore**
-async function saveDeposit(name, amount) {
-    try {
-        const docRef = await addDoc(collection(db, "depositos"), {
-            nombre: name,
-            monto: amount,
-            fecha: new Date().toLocaleDateString()
-        });
-        console.log("Depósito guardado con ID:", docRef.id);
-    } catch (error) {
-        console.error("Error al guardar en Firebase:", error);
-    }
-}
-
-// **Función para cargar depósitos desde Firebase**
-async function loadDeposits() {
-    try {
-        const q = query(collection(db, "depositos"), orderBy("fecha", "desc"));
-        const querySnapshot = await getDocs(q);
-        
-        historyList.innerHTML = ""; // Limpiar lista antes de cargar los datos
-        totalAmount = 0; // Reiniciar total
-
-        querySnapshot.forEach((doc) => {
-            const deposit = doc.data();
-            addDepositToList(doc.id, deposit.nombre, deposit.monto, deposit.fecha);
-            totalAmount += deposit.monto;
-        });
-
-        updateTotal(0); // Actualizar la vista del monto total
-    } catch (error) {
-        console.error("Error al cargar los depósitos:", error);
-    }
-}
-
-// **Función para añadir un depósito al historial visual**
-function addDepositToList(id, name, amount, date) {
-    const listItem = document.createElement("li");
-    listItem.innerHTML = `
-        ${name} depositó $${amount.toLocaleString()} el ${date}
-        <button class="delete-button">Eliminar</button>
-    `;
-
-    const deleteButton = listItem.querySelector(".delete-button");
-    deleteButton.addEventListener("click", async () => {
-        await deleteDeposit(id);
-        historyList.removeChild(listItem);
-        updateTotal(-amount);
+// Función para actualizar el total en Firebase
+function updateTotalFirebase(amount) {
+    get(totalRef).then((snapshot) => {
+        let total = snapshot.exists() ? snapshot.val() : 0;
+        total += amount;
+        set(totalRef, total);
     });
-
-    historyList.appendChild(listItem);
 }
 
-// **Función para eliminar un depósito en Firebase**
-async function deleteDeposit(id) {
-    try {
-        await deleteDoc(doc(db, "depositos", id));
-        console.log("Depósito eliminado correctamente");
-    } catch (error) {
-        console.error("Error al eliminar el depósito:", error);
+// Función para añadir un depósito a Firebase
+function agregarDeposito(name, amount) {
+    push(depositosRef, {
+        nombre: name,
+        cantidad: amount,
+        fecha: new Date().toLocaleString()
+    }).then(() => {
+        updateTotalFirebase(amount); // Actualizar total en Firebase
+    }).catch(error => console.error("Error al agregar depósito:", error));
+}
+
+// Función para eliminar un depósito de Firebase
+function eliminarDeposito(id, amount) {
+    remove(ref(database, `depositos/${id}`))
+        .then(() => {
+            updateTotalFirebase(-amount); // Restar el monto eliminado
+        })
+        .catch(error => console.error("Error al eliminar depósito:", error));
+}
+
+// Escuchar cambios en los depósitos
+onValue(depositosRef, (snapshot) => {
+    historyList.innerHTML = ""; // Limpiar lista antes de actualizar
+
+    if (snapshot.exists()) {
+        snapshot.forEach((childSnapshot) => {
+            const deposito = childSnapshot.val();
+            const depositoId = childSnapshot.key;
+
+            const listItem = document.createElement("li");
+            listItem.innerHTML = `
+                ${deposito.nombre} depositó $${deposito.cantidad} el ${deposito.fecha}
+                <button class="delete-button" data-id="${depositoId}" data-amount="${deposito.cantidad}">Eliminar</button>
+            `;
+
+            // Añadir evento para eliminar depósitos
+            listItem.querySelector(".delete-button").addEventListener("click", function() {
+                const id = this.getAttribute("data-id");
+                const amount = parseInt(this.getAttribute("data-amount"));
+                eliminarDeposito(id, amount);
+            });
+
+            historyList.appendChild(listItem);
+        });
+    } else {
+        historyList.innerHTML = "<li>No hay depósitos registrados aún.</li>";
     }
-}
+});
 
-// **Manejo del formulario para agregar depósitos**
-depositForm.addEventListener("submit", async (event) => {
+// Escuchar cambios en el monto total
+onValue(totalRef, (snapshot) => {
+    totalAmountSpan.textContent = `$${snapshot.exists() ? snapshot.val() : 0}`;
+});
+
+// Manejo del formulario para agregar depósitos
+depositForm.addEventListener("submit", (event) => {
     event.preventDefault();
     const name = nameInput.value.trim();
     const amount = parseInt(amountInput.value);
@@ -105,14 +88,10 @@ depositForm.addEventListener("submit", async (event) => {
         return;
     }
 
-    addDepositToList(null, name, amount, new Date().toLocaleDateString());
-    updateTotal(amount);
-    await saveDeposit(name, amount);
+    agregarDeposito(name, amount);
+    audio.play().catch(error => console.log("Error al reproducir audio:", error));
 
     // Limpiar campos
-    nameInput.value = "";
-    amountInput.value = "";
+    nameInput.value = '';
+    amountInput.value = '';
 });
-
-// **Cargar depósitos al iniciar la página**
-loadDeposits();
