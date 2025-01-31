@@ -1,147 +1,84 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Depósitos Compartidos</title>
-    <link rel="stylesheet" href="style.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
-            text-align: center;
-            color: #333;
-            margin: 0;
-            padding: 0;
-            overflow: auto;
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js";
+    import { getDatabase, ref, set, onValue, push } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-database.js";
+
+    // Configuración de Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyA4ZOaSkduTmMNmMQ-B1UtCDJtSK7JU9hA",
+        authDomain: "fiestas-a5462.firebaseapp.com",
+        databaseURL: "https://fiestas-a5462-default-rtdb.firebaseio.com",
+        projectId: "fiestas-a5462",
+        storageBucket: "fiestas-a5462.appspot.com",
+        messagingSenderId: "772543336072",
+        appId: "1:772543336072:web:b88c7f08a89f1dd3dcd93d"
+    };
+
+    // Inicializar Firebase
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    // Referencias en Firebase
+    const depositosRef = ref(database, "depositos");
+    const totalRef = ref(database, "totalMonto");
+
+    // Obtener elementos del DOM
+    const depositForm = document.getElementById("deposit-form");
+    const amountInput = document.getElementById("amount");
+    const nameInput = document.getElementById("name");
+    const totalAmountSpan = document.getElementById("total-amount");
+    const historyList = document.getElementById("history-list");
+
+    // ✅ Recuperar y mostrar el monto total desde Firebase
+    onValue(totalRef, (snapshot) => {
+        if (snapshot.exists()) {
+            totalAmountSpan.textContent = `$${snapshot.val()}`;
+        } else {
+            totalAmountSpan.textContent = "$0";  // Si Firebase no tiene monto, empieza en 0
         }
+    });
 
-        video#background-video {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            z-index: -1;
+    // ✅ Cargar los depósitos desde Firebase
+    onValue(depositosRef, (snapshot) => {
+        historyList.innerHTML = "";  // Limpiar lista antes de actualizar
+        if (snapshot.exists()) {
+            snapshot.forEach((childSnapshot) => {
+                const deposito = childSnapshot.val();
+                const listItem = document.createElement("li");
+                listItem.textContent = `${deposito.nombre} depositó $${deposito.cantidad} el ${deposito.fecha}`;
+                historyList.appendChild(listItem);
+            });
+        } else {
+            historyList.innerHTML = "<li>No hay depósitos registrados aún.</li>";
         }
+    });
 
-        .container {
-            position: relative;
-            z-index: 1;
-            color: white;
-            text-align: center;
-            background-color: rgba(0, 0, 0, 0.3);
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 50px;
-            width: 80%;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }
+    // ✅ Función para agregar un nuevo depósito a Firebase
+    function agregarDeposito(nombre, cantidad) {
+        push(depositosRef, { nombre, cantidad, fecha: new Date().toLocaleString() });
 
-        h1 {
-            margin-bottom: 20px;
-            color: white;
-            text-shadow: 2px 2px 5px black;
-        }
-
-        h2, h3 {
-            margin-top: 20px;
-            color: white;
-            text-align: center;
-            background-color: rgba(0, 0, 0, 0.5);
-            padding: 10px;
-            border-radius: 5px;
-        }
-
-        #history-list {
-            max-height: 300px;
-            overflow-y: scroll;
-            margin-top: 10px;
-            background-color: rgba(0, 0, 0, 0.3);
-            padding: 10px;
-            border-radius: 5px;
-            scrollbar-width: none;
-        }
-
-        #history-list::-webkit-scrollbar {
-            display: none;
-        }
-
-        #history-list li {
-            color: black;
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 5px;
-            border-radius: 5px;
-            margin: 5px 0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        form {
-            margin-bottom: 10px;
-        }
-
-        input, button {
-            margin: 5px 0;
-        }
-    </style>
-</head>
-<body>
-    <!-- Video de fondo -->
-    <video id="background-video" autoplay loop muted>
-        <source src="/creamfields.mp4" type="video/mp4">
-        Tu navegador no soporta el elemento de video.
-    </video>
-
-    <div class="container">
-        <h1>Depósitos Compartidos</h1>
-        <form id="deposit-form">
-            <input type="number" id="amount" placeholder="Monto a depositar" required>
-            <input type="text" id="name" placeholder="Tu nombre" required>
-            <button type="submit">Añadir Depósito</button>
-        </form>
-        <h2>Monto Total: <span id="total-amount">$0</span></h2>
-        <h3>Historial de Depósitos:</h3>
-        <ul id="history-list"></ul>
-    </div>
-
-    <!-- Firebase y prueba de conexión -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js";
-        import { getDatabase, ref, push, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-database.js";
-
-        // Configuración de Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyA4ZOaSkduTmMNmMQ-B1UtCDJtSK7JU9hA",
-            authDomain: "fiestas-a5462.firebaseapp.com",
-            databaseURL: "https://fiestas-a5462-default-rtdb.firebaseio.com",
-            projectId: "fiestas-a5462",
-            storageBucket: "fiestas-a5462.appspot.com",
-            messagingSenderId: "772543336072",
-            appId: "1:772543336072:web:b88c7f08a89f1dd3dcd93d"
-        };
-
-        // Inicializar Firebase
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
-
-        // Prueba de conexión
-        document.body.innerHTML += "<p style='color: green;'>✅ Firebase se ha cargado correctamente</p>";
-
-        // Intentar escribir un dato de prueba en Firebase
-        const pruebaRef = ref(database, "pruebaConexion");
-        set(pruebaRef, { mensaje: "Conexión exitosa" })
-        .then(() => {
-            document.body.innerHTML += "<p style='color: blue;'>✅ Prueba de escritura en Firebase exitosa</p>";
-        })
-        .catch((error) => {
-            document.body.innerHTML += `<p style='color: red;'>❌ Error al escribir en Firebase: ${error.message}</p>`;
+        // Actualizar el monto total en Firebase sumando el nuevo depósito
+        onValue(totalRef, (snapshot) => {
+            let total = snapshot.exists() ? snapshot.val() : 0;
+            set(totalRef, total + cantidad);
         });
-    </script>
-</body>
-</html>
+    }
+
+    // ✅ Manejo del formulario para agregar depósitos
+    depositForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const nombre = nameInput.value.trim();
+        const cantidad = parseInt(amountInput.value);
+
+        if (!nombre || isNaN(cantidad) || cantidad <= 0) {
+            alert("Por favor, ingresa un nombre y un monto válido.");
+            return;
+        }
+
+        agregarDeposito(nombre, cantidad);
+
+        // Limpiar los campos
+        nameInput.value = "";
+        amountInput.value = "";
+    });
+
+</script>
