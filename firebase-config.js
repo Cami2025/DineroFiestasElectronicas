@@ -1,17 +1,17 @@
- // Importar Firebase y Realtime Database
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js";
-import { getDatabase } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-database.js";
+// Importar Firebase y Realtime Database
+import { initializeApp } from "firebase/app";
+import { getDatabase } from "firebase/database";
 
-// Configuración de Firebase
+// Configuración de Firebase usando variables de entorno
 const firebaseConfig = {
-  apiKey: "AIzaSyA4ZOaSkduTmMNmMQ-B1UtCDJtSK7JU9hA",
-  authDomain: "fiestas-a5462.firebaseapp.com",
-  databaseURL: "https://fiestas-a5462-default-rtdb.firebaseio.com",
-  projectId: "fiestas-a5462",
-  storageBucket: "fiestas-a5462.appspot.com",
-  messagingSenderId: "772543336072",
-  appId: "1:772543336072:web:b88c7f08a89f1dd3dcd93d",
-  measurementId: "G-317ZHZ47NW"
+  apiKey: process.env.NEXT_PUBLIC_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_AUTH_DOMAIN,
+  databaseURL: process.env.NEXT_PUBLIC_DATABASE_URL,
+  projectId: process.env.NEXT_PUBLIC_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_MEASUREMENT_ID,
 };
 
 // Inicializar Firebase
@@ -20,3 +20,4 @@ const database = getDatabase(app);
 
 // Exportar la base de datos
 export { database };
+
