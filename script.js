@@ -26,16 +26,23 @@ function obtenerTotal() {
 }
 
 // 🔹 Función para actualizar el total en Firebase
-function actualizarTotalFirebase(monto) {
-    get(totalRef)
-        .then((snapshot) => {
-            let total = snapshot.exists() ? snapshot.val() : 0;
-            total += monto;
-            set(totalRef, total)
-                .then(() => console.log(`✅ Total actualizado: $${total}`))
-                .catch((error) => console.error("❌ Error actualizando total:", error));
-        })
-        .catch((error) => console.error("❌ Error obteniendo total para actualizar:", error));
+async function actualizarTotalFirebase() {
+    try {
+        const snapshot = await get(depositosRef);
+        let total = 0;
+
+        if (snapshot.exists()) {
+            snapshot.forEach(childSnapshot => {
+                const deposito = childSnapshot.val();
+                total += deposito.cantidad;
+            });
+        }
+
+        await set(totalRef, total);
+        console.log(`✅ Total actualizado: $${total}`);
+    } catch (error) {
+        console.error("❌ Error actualizando total:", error);
+    }
 }
 
 // 🔹 Función para agregar un depósito a Firebase
@@ -45,24 +52,24 @@ function agregarDeposito(nombre, cantidad) {
         cantidad: cantidad,
         fecha: new Date().toLocaleString(),
     })
-        .then(() => {
-            actualizarTotalFirebase(cantidad);
-            console.log(`✅ Depósito agregado: ${nombre} - $${cantidad}`);
-        })
-        .catch((error) => console.error("❌ Error al agregar depósito:", error));
+    .then(() => {
+        actualizarTotalFirebase();
+        console.log(`✅ Depósito agregado: ${nombre} - $${cantidad}`);
+    })
+    .catch((error) => console.error("❌ Error al agregar depósito:", error));
 }
 
 // 🔹 Función para eliminar un depósito
-function eliminarDeposito(id, cantidad) {
+function eliminarDeposito(id) {
     remove(ref(database, `depositos/${id}`))
-        .then(() => {
-            actualizarTotalFirebase(-cantidad);
-            console.log(`🗑️ Depósito eliminado: ID ${id} - $${cantidad}`);
-        })
-        .catch((error) => console.error("❌ Error al eliminar depósito:", error));
+    .then(() => {
+        actualizarTotalFirebase();
+        console.log(`🗑️ Depósito eliminado: ID ${id}`);
+    })
+    .catch((error) => console.error("❌ Error al eliminar depósito:", error));
 }
 
-// 🔹 Función para mostrar depósitos en la interfaz y mantenerlos en la página
+// 🔹 Función para mostrar depósitos en la interfaz
 function cargarDepositos() {
     onValue(depositosRef, (snapshot) => {
         historyList.innerHTML = ""; // Limpiar la lista antes de actualizar
@@ -77,13 +84,12 @@ function cargarDepositos() {
 
                 listItem.innerHTML = `
                     <span>${deposito.nombre} depositó <strong>$${deposito.cantidad}</strong> el ${deposito.fecha}</span>
-                    <button class="delete-button" data-id="${depositoId}" data-amount="${deposito.cantidad}" style="background: red; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">❌ Eliminar</button>
+                    <button class="delete-button" data-id="${depositoId}">❌ Eliminar</button>
                 `;
 
                 listItem.querySelector(".delete-button").addEventListener("click", function () {
                     const id = this.getAttribute("data-id");
-                    const cantidad = parseInt(this.getAttribute("data-amount"));
-                    eliminarDeposito(id, cantidad);
+                    eliminarDeposito(id);
                 });
 
                 historyList.appendChild(listItem);
