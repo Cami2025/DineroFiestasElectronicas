@@ -1,23 +1,23 @@
 // Importar Firebase y Realtime Database
-import { initializeApp } from "firebase/app";
-import { getDatabase } from "firebase/database";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js";
+import { getDatabase } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-database.js";
 
-// Configuración de Firebase usando variables de entorno
+// Configuración de Firebase
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_AUTH_DOMAIN,
-  databaseURL: process.env.NEXT_PUBLIC_DATABASE_URL,
-  projectId: process.env.NEXT_PUBLIC_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_MEASUREMENT_ID,
+  apiKey: "AIzaSyD8UPGQu94dzTyr3edIIbwrm8hlAOebJpo",
+  authDomain: "fiestas-5f0e5.firebaseapp.com",
+  databaseURL: "https://fiestas-5f0e5-default-rtdb.firebaseio.com",
+  projectId: "fiestas-5f0e5",
+  storageBucket: "fiestas-5f0e5.firebasestorage.app",
+  messagingSenderId: "528292695738",
+  appId: "1:528292695738:web:1fd6193891a6840fb27c83"
 };
 
 // Inicializar Firebase
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 
-// Exportar la base de datos
-export { database };
+// Verificar conexión en la consola
+console.log("🔥 Firebase conectado correctamente:", database);
 
+export { database };
