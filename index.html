@@ -6,6 +6,7 @@
     <title>Depósitos Compartidos</title>
     <link rel="stylesheet" href="style.css">
     <style>
+        /* Asegúrate de que el video cubra toda la pantalla */
         body {
             font-family: Arial, sans-serif;
             background-color: #f5f5f5;
@@ -13,7 +14,7 @@
             color: #333;
             margin: 0;
             padding: 0;
-            overflow: auto;
+            overflow: auto; /* Permitir desplazamiento */
         }
 
         video#background-video {
@@ -31,7 +32,7 @@
             z-index: 1;
             color: white;
             text-align: center;
-            background-color: rgba(0, 0, 0, 0.3);
+            background-color: rgba(0, 0, 0, 0.3); /* Cambiado para hacer transparente */
             padding: 20px;
             border-radius: 10px;
             margin-top: 50px;
@@ -39,36 +40,37 @@
             max-width: 600px;
             margin-left: auto;
             margin-right: auto;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra sutil */
         }
 
         h1 {
             margin-bottom: 20px;
             color: white;
-            text-shadow: 2px 2px 5px black;
+            text-shadow: 2px 2px 5px black; /* Sombra para visibilidad */
         }
 
         h2, h3 {
             margin-top: 20px;
             color: white;
             text-align: center;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.5); /* Fondo semitransparente */
             padding: 10px;
             border-radius: 5px;
         }
 
+        /* Estilo para las letras del historial de depósitos */
         #history-list {
-            max-height: 300px;
-            overflow-y: scroll;
+            max-height: 300px; /* Altura máxima para permitir desplazamiento */
+            overflow-y: scroll; /* Forzar la barra de desplazamiento */
             margin-top: 10px;
-            background-color: rgba(0, 0, 0, 0.3);
+            background-color: rgba(0, 0, 0, 0.3); /* Fondo semitransparente */
             padding: 10px;
             border-radius: 5px;
-            scrollbar-width: none;
+            scrollbar-width: none; /* Ocultar scrollbar en Firefox */
         }
 
         #history-list::-webkit-scrollbar {
-            display: none;
+            display: none; /* Ocultar scrollbar en Chrome, Edge y Safari */
         }
 
         #history-list li {
@@ -95,6 +97,7 @@
             background-color: darkred;
         }
 
+        /* Ajustes específicos para hacer el formulario más compacto */
         form {
             margin-bottom: 10px;
         }
@@ -105,11 +108,13 @@
     </style>
 </head>
 <body>
+    <!-- Video de fondo -->
     <video id="background-video" autoplay loop muted>
         <source src="/creamfields.mp4" type="video/mp4">
         Tu navegador no soporta el elemento de video.
     </video>
 
+    <!-- Audio de fondo -->
     <audio id="background-audio" loop>
         <source src="/audiofile.mp3" type="audio/mp3">
         Tu navegador no soporta el elemento de audio.
@@ -122,12 +127,86 @@
             <input type="text" id="name" placeholder="Tu nombre" required>
             <button type="submit">Añadir Depósito</button>
         </form>
-        <h2>Monto Total: <span id="total-amount">$320810</span></h2>
+        <!-- Monto total -->
+        <h2>Monto Total: <span id="total-amount">$282810</span></h2>
+        <!-- Historial -->
         <h3>Historial de Depósitos:</h3>
         <ul id="history-list"></ul>
     </div>
 
-    <script type="module" src="firebase-config.js"></script>
+    <script>
+        const depositForm = document.getElementById('deposit-form');
+        const amountInput = document.getElementById('amount');
+        const nameInput = document.getElementById('name');
+        const totalAmountSpan = document.getElementById('total-amount');
+        const historyList = document.getElementById('history-list');
+        const audio = document.getElementById('background-audio');
+
+        let totalAmount = 342810; // Monto inicial
+        totalAmountSpan.textContent = `$${totalAmount}`; // Mostrar sin decimales
+
+        // Intentar reproducir el audio al enfocar el formulario
+        depositForm.addEventListener('focus', () => {
+            audio.play().catch(error => {
+                console.log("Error al intentar reproducir el audio al enfocar el formulario:", error);
+            });
+        }, true);
+
+        // Función para actualizar el total
+        function updateTotal(amount) {
+            totalAmount += amount;
+            totalAmountSpan.textContent = `$${totalAmount}`; // Sin decimales
+        }
+
+        // Función para desplazarse automáticamente hacia el final de la lista
+        function scrollToBottom() {
+            historyList.scrollTop = historyList.scrollHeight; // Desplaza al final
+        }
+
+        // Función para añadir un depósito al historial
+        function addDeposit(name, amount) {
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `
+                ${name} depositó $${amount} el ${new Date().toLocaleDateString()}
+                <button class="delete-button">Eliminar</button>
+            `;
+            const deleteButton = listItem.querySelector('.delete-button');
+            deleteButton.addEventListener('click', () => {
+                historyList.removeChild(listItem);
+                updateTotal(-amount); // Resta el monto eliminado
+            });
+            historyList.appendChild(listItem);
+
+            // Desplazarse automáticamente al final después de añadir el depósito
+            scrollToBottom();
+        }
+
+        // Manejo del formulario
+        depositForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const name = nameInput.value.trim();
+            const amount = parseInt(amountInput.value); // Convertir a entero
+
+            if (!name || isNaN(amount) || amount <= 0) {
+                alert('Por favor, ingresa un nombre y un monto válido.');
+                return;
+            }
+
+            addDeposit(name, amount);
+            updateTotal(amount);
+
+            // Reproducir el audio automáticamente después de añadir un depósito
+            audio.play().catch(error => {
+                console.log("Error al intentar reproducir el audio después de añadir un depósito:", error);
+            });
+
+            // Limpiar campos
+            nameInput.value = '';
+            amountInput.value = '';
+        });
+     <script type="module" src="firebase-config.js"></script>
     <script type="module" src="script.js"></script>
 </body>
 </html>
+
+
