@@ -6,9 +6,9 @@ import { getDatabase } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-
 const firebaseConfig = {
   apiKey: "AIzaSyD8UPGQu94dzTyr3edIIbwrm8hlAOebJpo",
   authDomain: "fiestas-5f0e5.firebaseapp.com",
-  databaseURL: "https://fiestas-5f0e5-default-rtdb.firebaseio.com",
+  databaseURL: "https://fiestas-5f0e5-default-rtdb.firebaseio.com", // ✅ URL corregida
   projectId: "fiestas-5f0e5",
-  storageBucket: "fiestas-5f0e5.firebasestorage.app",
+  storageBucket: "fiestas-5f0e5.appspot.com", // ✅ Corrección en el dominio de storage
   messagingSenderId: "528292695738",
   appId: "1:528292695738:web:1fd6193891a6840fb27c83"
 };
