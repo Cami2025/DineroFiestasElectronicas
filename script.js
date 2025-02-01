@@ -17,17 +17,15 @@ const audio = document.getElementById("background-audio");
 const depositosRef = ref(database, "depositos");
 const totalRef = ref(database, "totalMonto");
 
-// Función para obtener el monto total desde Firebase
+// 🔹 Función para obtener el monto total en tiempo real
 function obtenerTotal() {
     onValue(totalRef, (snapshot) => {
         const total = snapshot.exists() ? snapshot.val() : 0;
         totalAmountSpan.textContent = `$${total}`;
-    }, {
-        onlyOnce: false // Escucha los cambios en tiempo real
     });
 }
 
-// Función para actualizar el total en Firebase
+// 🔹 Función para actualizar el total en Firebase
 function actualizarTotalFirebase(monto) {
     get(totalRef)
         .then((snapshot) => {
@@ -40,7 +38,7 @@ function actualizarTotalFirebase(monto) {
         .catch((error) => console.error("❌ Error obteniendo total para actualizar:", error));
 }
 
-// Función para agregar un depósito a Firebase
+// 🔹 Función para agregar un depósito a Firebase
 function agregarDeposito(nombre, cantidad) {
     push(depositosRef, {
         nombre: nombre,
@@ -54,7 +52,7 @@ function agregarDeposito(nombre, cantidad) {
         .catch((error) => console.error("❌ Error al agregar depósito:", error));
 }
 
-// Función para eliminar un depósito
+// 🔹 Función para eliminar un depósito
 function eliminarDeposito(id, cantidad) {
     remove(ref(database, `depositos/${id}`))
         .then(() => {
@@ -64,10 +62,10 @@ function eliminarDeposito(id, cantidad) {
         .catch((error) => console.error("❌ Error al eliminar depósito:", error));
 }
 
-// Función para mostrar depósitos en la interfaz
+// 🔹 Función para mostrar depósitos en la interfaz y mantenerlos en la página
 function cargarDepositos() {
     onValue(depositosRef, (snapshot) => {
-        historyList.innerHTML = ""; // Limpiar lista antes de actualizar
+        historyList.innerHTML = ""; // Limpiar la lista antes de actualizar
 
         if (snapshot.exists()) {
             snapshot.forEach((childSnapshot) => {
@@ -75,9 +73,11 @@ function cargarDepositos() {
                 const depositoId = childSnapshot.key;
 
                 const listItem = document.createElement("li");
+                listItem.style.cssText = "background: lightgray; padding: 10px; margin: 5px; border-radius: 5px; display: flex; justify-content: space-between; align-items: center;";
+
                 listItem.innerHTML = `
-                    ${deposito.nombre} depositó $${deposito.cantidad} el ${deposito.fecha}
-                    <button class="delete-button" data-id="${depositoId}" data-amount="${deposito.cantidad}">❌ Eliminar</button>
+                    <span>${deposito.nombre} depositó <strong>$${deposito.cantidad}</strong> el ${deposito.fecha}</span>
+                    <button class="delete-button" data-id="${depositoId}" data-amount="${deposito.cantidad}" style="background: red; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">❌ Eliminar</button>
                 `;
 
                 listItem.querySelector(".delete-button").addEventListener("click", function () {
@@ -91,12 +91,10 @@ function cargarDepositos() {
         } else {
             historyList.innerHTML = "<li>No hay depósitos registrados aún.</li>";
         }
-    }, {
-        onlyOnce: false // Mantener la escucha en tiempo real
     });
 }
 
-// Manejo del formulario para agregar depósitos
+// 🔹 Manejo del formulario para agregar depósitos
 depositForm.addEventListener("submit", (event) => {
     event.preventDefault();
     const nombre = nameInput.value.trim();
@@ -115,6 +113,6 @@ depositForm.addEventListener("submit", (event) => {
     amountInput.value = "";
 });
 
-// Cargar depósitos y total al iniciar la página
+// 🔹 Cargar depósitos y total al iniciar la página
 cargarDepositos();
 obtenerTotal();
