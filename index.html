@@ -51,7 +51,6 @@
         h2, h3 {
             margin-top: 20px;
             color: white;
-            text-align: center;
             background-color: rgba(0, 0, 0, 0.5);
             padding: 10px;
             border-radius: 5px;
@@ -64,11 +63,6 @@
             background-color: rgba(0, 0, 0, 0.3);
             padding: 10px;
             border-radius: 5px;
-            scrollbar-width: none;
-        }
-
-        #history-list::-webkit-scrollbar {
-            display: none;
         }
 
         #history-list li {
@@ -94,14 +88,6 @@
         #history-list li button:hover {
             background-color: darkred;
         }
-
-        form {
-            margin-bottom: 10px;
-        }
-
-        input, button {
-            margin: 5px 0;
-        }
     </style>
 </head>
 <body>
@@ -110,7 +96,7 @@
         Tu navegador no soporta el elemento de video.
     </video>
 
-    <audio id="background-audio" loop>
+    <audio id="background-audio">
         <source src="/audiofile.mp3" type="audio/mp3">
         Tu navegador no soporta el elemento de audio.
     </audio>
@@ -122,12 +108,35 @@
             <input type="text" id="name" placeholder="Tu nombre" required>
             <button type="submit">Añadir Depósito</button>
         </form>
+
+        <button id="play-audio">🔊 Reproducir/Detener Audio</button>
+
         <h2>Monto Total: <span id="total-amount">$0</span></h2>
         <h3>Historial de Depósitos:</h3>
         <ul id="history-list"></ul>
     </div>
 
-    <script type="module" src="firebase-config.js"></script>
-    <script type="module" src="script.js"></script>
+    <script src="firebase-config.js"></script>
+    <script src="script.js"></script>
+    <script>
+        const audio = document.getElementById("background-audio");
+        const playAudioBtn = document.getElementById("play-audio");
+
+        // Reproducir audio al hacer clic en cualquier parte del documento
+        document.addEventListener("click", () => {
+            if (audio.paused) {
+                audio.play().catch((error) => console.log("🎵 Error al reproducir:", error));
+            }
+        });
+
+        // Botón para controlar el audio manualmente
+        playAudioBtn.addEventListener("click", () => {
+            if (audio.paused) {
+                audio.play();
+            } else {
+                audio.pause();
+            }
+        });
+    </script>
 </body>
 </html>
