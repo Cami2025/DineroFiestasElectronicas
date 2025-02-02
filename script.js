@@ -26,7 +26,7 @@ onAuthStateChanged(auth, (user) => {
 
 function mostrarLogin() {
   if (!loginContainer) return;
-  // Se inyecta el formulario de login en el contenedor específico
+  // Inyecta el formulario de login en el contenedor específico
   loginContainer.innerHTML = `
     <h2>Iniciar Sesión</h2>
     <input type="email" id="loginEmail" placeholder="Correo electrónico" required />
@@ -55,7 +55,7 @@ function logout() {
 
 // Lógica de Depósitos
 
-// Se asume que estos elementos están dentro del contenedor #app-content
+// Elementos del DOM (dentro de #app-content)
 const depositForm = document.getElementById('deposit-form');
 const amountInput = document.getElementById('amount');
 const nameInput = document.getElementById('name');
@@ -79,7 +79,12 @@ onValue(depositosRef, (snapshot) => {
 
 // Escucha en tiempo real para actualizar el monto total
 onValue(totalRef, (snapshot) => {
-  const total = snapshot.val() || 0;
+  let total = snapshot.val();
+  if (total === null) {
+    // Si no hay valor, asigna el depósito inicial deseado
+    total = 320810;
+    set(totalRef, total);
+  }
   if (totalAmountSpan) totalAmountSpan.textContent = `$${total}`;
 });
 
@@ -128,6 +133,13 @@ if (depositForm) {
     }
 
     addDepositToFirebase(nombre, cantidad);
+
+    // Reproducir audio al hacer un depósito
+    const audio = document.getElementById('interaction-audio');
+    if (audio) {
+      audio.play();
+    }
+
     nameInput.value = '';
     amountInput.value = '';
   });
