@@ -105,7 +105,8 @@
     </style>
 </head>
 <body>
-    <video id="background-video" autoplay loop muted>
+    <!-- QUITAMOS el atributo muted -->
+    <video id="background-video" autoplay loop>
         <source src="/creamfields.mp4" type="video/mp4">
         Tu navegador no soporta el elemento de video.
     </video>
@@ -127,7 +128,57 @@
         <ul id="history-list"></ul>
     </div>
 
-    <script type="module" src="firebase-config.js"></script>
-    <script type="module" src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('deposit-form');
+            const amountInput = document.getElementById('amount');
+            const nameInput = document.getElementById('name');
+            const historyList = document.getElementById('history-list');
+            const totalAmount = document.getElementById('total-amount');
+            const backgroundVideo = document.getElementById('background-video');
+
+            let total = 0;
+
+            form.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const name = nameInput.value;
+                const amount = parseFloat(amountInput.value);
+
+                if (name && amount > 0) {
+                    addDeposit(name, amount);
+                    updateTotal(amount);
+
+                    // Reproducir el audio del video después de añadir un depósito
+                    backgroundVideo.muted = false;
+                    backgroundVideo.volume = 0.5;  // Ajusta el volumen si es necesario
+                    backgroundVideo.play().catch(error => {
+                        console.log("Error al intentar reproducir el video:", error);
+                    });
+
+                    form.reset();
+                }
+            });
+
+            function addDeposit(name, amount) {
+                const li = document.createElement('li');
+                li.textContent = `${name}: $${amount.toFixed(2)}`;
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Eliminar';
+                deleteButton.addEventListener('click', () => {
+                    historyList.removeChild(li);
+                    updateTotal(-amount);
+                });
+
+                li.appendChild(deleteButton);
+                historyList.appendChild(li);
+            }
+
+            function updateTotal(amount) {
+                total += amount;
+                totalAmount.textContent = `$${total.toFixed(2)}`;
+            }
+        });
+    </script>
 </body>
 </html>
