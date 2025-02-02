@@ -51,7 +51,6 @@
         h2, h3 {
             margin-top: 20px;
             color: white;
-            text-align: center;
             background-color: rgba(0, 0, 0, 0.5);
             padding: 10px;
             border-radius: 5px;
@@ -64,7 +63,6 @@
             background-color: rgba(0, 0, 0, 0.3);
             padding: 10px;
             border-radius: 5px;
-            scrollbar-width: none;
         }
 
         #history-list::-webkit-scrollbar {
@@ -111,11 +109,6 @@
         Tu navegador no soporta el elemento de video.
     </video>
 
-    <audio id="background-audio" loop>
-        <source src="/audiofile.mp3" type="audio/mp3">
-        Tu navegador no soporta el elemento de audio.
-    </audio>
-
     <div class="container">
         <h1>Depósitos Compartidos</h1>
         <form id="deposit-form">
@@ -129,56 +122,58 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const form = document.getElementById('deposit-form');
-            const amountInput = document.getElementById('amount');
-            const nameInput = document.getElementById('name');
-            const historyList = document.getElementById('history-list');
-            const totalAmount = document.getElementById('total-amount');
-            const backgroundVideo = document.getElementById('background-video');
+        const depositForm = document.getElementById('deposit-form');
+        const amountInput = document.getElementById('amount');
+        const nameInput = document.getElementById('name');
+        const totalAmountSpan = document.getElementById('total-amount');
+        const historyList = document.getElementById('history-list');
+        const backgroundVideo = document.getElementById('background-video');
 
-            let total = 0;
+        let totalAmount = 0;
+        totalAmountSpan.textContent = `$${totalAmount}`;
 
-            form.addEventListener('submit', (event) => {
-                event.preventDefault();
-                const name = nameInput.value;
-                const amount = parseFloat(amountInput.value);
+        depositForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const name = nameInput.value.trim();
+            const amount = parseInt(amountInput.value);
 
-                if (name && amount > 0) {
-                    addDeposit(name, amount);
-                    updateTotal(amount);
+            if (!name || isNaN(amount) || amount <= 0) {
+                alert('Por favor, ingresa un nombre y un monto válido.');
+                return;
+            }
 
-                    // Reproducir el audio del video después de añadir un depósito
-                    backgroundVideo.muted = false;
-                    backgroundVideo.volume = 0.5;  // Ajusta el volumen si es necesario
-                    backgroundVideo.play().catch(error => {
-                        console.log("Error al intentar reproducir el video:", error);
-                    });
+            addDeposit(name, amount);
+            updateTotal(amount);
 
-                    form.reset();
-                }
+            // Reproducir el audio del video después de añadir un depósito
+            backgroundVideo.muted = false; // ACTIVAMOS EL SONIDO
+            backgroundVideo.volume = 0.5;  // Control del volumen
+            backgroundVideo.play().catch(error => {
+                console.log("Error al intentar reproducir el video:", error);
             });
 
-            function addDeposit(name, amount) {
-                const li = document.createElement('li');
-                li.textContent = `${name}: $${amount.toFixed(2)}`;
-
-                const deleteButton = document.createElement('button');
-                deleteButton.textContent = 'Eliminar';
-                deleteButton.addEventListener('click', () => {
-                    historyList.removeChild(li);
-                    updateTotal(-amount);
-                });
-
-                li.appendChild(deleteButton);
-                historyList.appendChild(li);
-            }
-
-            function updateTotal(amount) {
-                total += amount;
-                totalAmount.textContent = `$${total.toFixed(2)}`;
-            }
+            nameInput.value = '';
+            amountInput.value = '';
         });
+
+        function addDeposit(name, amount) {
+            const listItem = document.createElement('li');
+            listItem.innerHTML = `
+                ${name} depositó $${amount} el ${new Date().toLocaleDateString()}
+                <button class="delete-button">Eliminar</button>
+            `;
+            const deleteButton = listItem.querySelector('.delete-button');
+            deleteButton.addEventListener('click', () => {
+                historyList.removeChild(listItem);
+                updateTotal(-amount);
+            });
+            historyList.appendChild(listItem);
+        }
+
+        function updateTotal(amount) {
+            totalAmount += amount;
+            totalAmountSpan.textContent = `$${totalAmount}`;
+        }
     </script>
 </body>
 </html>
