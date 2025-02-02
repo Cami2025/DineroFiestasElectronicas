@@ -139,22 +139,17 @@
         let totalAmount = 342810; 
         totalAmountSpan.textContent = `$${totalAmount}`; 
 
-        // Reproducir el audio cuando el usuario interactúe con la página
-        document.body.addEventListener('click', () => {
+        // Reproducir el audio cuando el formulario recibe el enfoque
+        depositForm.addEventListener('focus', () => {
             audio.play().catch(error => {
-                console.log("Error al intentar reproducir el audio:", error);
+                console.log("Error al intentar reproducir el audio al enfocar el formulario:", error);
             });
-        }, { once: true }); // Solo se activa una vez
+        }, true);
 
         // Función para actualizar el total
         function updateTotal(amount) {
             totalAmount += amount;
             totalAmountSpan.textContent = `$${totalAmount}`; 
-        }
-
-        // Función para desplazarse automáticamente hacia el final de la lista
-        function scrollToBottom() {
-            historyList.scrollTop = historyList.scrollHeight;
         }
 
         // Función para añadir un depósito al historial
@@ -167,19 +162,16 @@
             const deleteButton = listItem.querySelector('.delete-button');
             deleteButton.addEventListener('click', () => {
                 historyList.removeChild(listItem);
-                updateTotal(-amount); 
+                updateTotal(-amount);
             });
             historyList.appendChild(listItem);
-
-            // Desplazarse automáticamente al final después de añadir el depósito
-            scrollToBottom();
         }
 
         // Manejo del formulario
         depositForm.addEventListener('submit', (event) => {
             event.preventDefault();
             const name = nameInput.value.trim();
-            const amount = parseInt(amountInput.value); 
+            const amount = parseInt(amountInput.value);
 
             if (!name || isNaN(amount) || amount <= 0) {
                 alert('Por favor, ingresa un nombre y un monto válido.');
@@ -189,12 +181,11 @@
             addDeposit(name, amount);
             updateTotal(amount);
 
-            // Reproducir el audio automáticamente después de añadir un depósito
+            // Reproducir el audio después de añadir un depósito
             audio.play().catch(error => {
                 console.log("Error al intentar reproducir el audio después de añadir un depósito:", error);
             });
 
-            // Limpiar campos
             nameInput.value = '';
             amountInput.value = '';
         });
