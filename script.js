@@ -81,7 +81,7 @@ onValue(depositosRef, (snapshot) => {
 onValue(totalRef, (snapshot) => {
   let total = snapshot.val();
   if (total === null) {
-    // Si no hay valor, asigna el depósito inicial deseado
+    // Si no hay valor, se asigna el depósito inicial deseado
     total = 320810;
     set(totalRef, total);
   }
@@ -96,6 +96,7 @@ function addDepositToFirebase(nombre, cantidad) {
 
 function actualizarTotal(cantidad) {
   get(totalRef).then((snapshot) => {
+    // Suma el nuevo depósito al total actual
     const total = (snapshot.val() || 0) + cantidad;
     set(totalRef, total);
   });
