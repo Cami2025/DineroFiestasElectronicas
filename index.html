@@ -104,8 +104,8 @@
     </style>
 </head>
 <body>
-    <!-- Video de fondo -->
-    <video id="background-video" autoplay loop muted>
+    <!-- Video de fondo SIN el atributo muted -->
+    <video id="background-video" autoplay loop>
         <source src="/creamfields.mp4" type="video/mp4">
         Tu navegador no soporta el elemento de video.
     </video>
@@ -135,21 +135,26 @@
         const totalAmountSpan = document.getElementById('total-amount');
         const historyList = document.getElementById('history-list');
         const audio = document.getElementById('background-audio');
+        const video = document.getElementById('background-video');
 
         let totalAmount = 342810; 
-        totalAmountSpan.textContent = `$${totalAmount}`; 
+        totalAmountSpan.textContent = `$${totalAmount}`;
 
-        // Reproducir el audio cuando el formulario recibe el enfoque
-        depositForm.addEventListener('focus', () => {
+        // Reproducir el audio al primer clic en cualquier parte de la página
+        document.body.addEventListener('click', () => {
             audio.play().catch(error => {
-                console.log("Error al intentar reproducir el audio al enfocar el formulario:", error);
+                console.log("Error al intentar reproducir el audio:", error);
             });
-        }, true);
+            video.muted = false;  // Asegura que el video también tenga audio
+            video.play().catch(error => {
+                console.log("Error al intentar reproducir el video:", error);
+            });
+        }, { once: true }); // Solo una vez al cargar la página
 
         // Función para actualizar el total
         function updateTotal(amount) {
             totalAmount += amount;
-            totalAmountSpan.textContent = `$${totalAmount}`; 
+            totalAmountSpan.textContent = `$${totalAmount}`;
         }
 
         // Función para añadir un depósito al historial
@@ -181,7 +186,7 @@
             addDeposit(name, amount);
             updateTotal(amount);
 
-            // Reproducir el audio después de añadir un depósito
+            // Reproducir el audio nuevamente después de añadir un depósito
             audio.play().catch(error => {
                 console.log("Error al intentar reproducir el audio después de añadir un depósito:", error);
             });
