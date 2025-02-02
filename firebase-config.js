@@ -1,9 +1,9 @@
 // firebase-config.js
 
-// Importar Firebase, Realtime Database y Auth
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-app.js";
-import { getDatabase } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-database.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/10.7.2/firebase-auth.js"; // NUEVA LÍNEA
+// Importar Firebase y sus servicios desde node_modules
+import { initializeApp } from 'firebase/app';
+import { getDatabase } from 'firebase/database';
+import { getAuth } from 'firebase/auth';
 
 // Configuración de Firebase
 const firebaseConfig = {
@@ -19,7 +19,7 @@ const firebaseConfig = {
 // Inicializar Firebase
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
-const auth = getAuth(app);  // Inicializar Auth
+const auth = getAuth(app);
 
 // Verificar conexión en la consola
 console.log("🔥 Firebase conectado correctamente:", database);
