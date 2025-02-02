@@ -77,7 +77,7 @@ onValue(depositosRef, (snapshot) => {
 onValue(totalRef, (snapshot) => {
   let total = snapshot.val();
   if (!total) { 
-    total = 320810;
+    total = 223910;
     set(totalRef, total);
   }
   if (totalAmountSpan) totalAmountSpan.textContent = `$${total}`;
