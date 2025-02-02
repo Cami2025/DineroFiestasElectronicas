@@ -4,7 +4,12 @@ console.log("🚀 script.js se ha cargado correctamente.");
 
 import { database, auth } from "./firebase-config.js";
 import { ref, push, onValue, remove, set, get } from "firebase/database";
-import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
+import { signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserSessionPersistence } from "firebase/auth";
+
+// Configurar la persistencia de la sesión para que no se mantenga después de cerrar o actualizar la página
+setPersistence(auth, browserSessionPersistence).catch((error) => {
+  console.error("Error al configurar la persistencia de sesión:", error.message);
+});
 
 // Obtener los contenedores definidos en el HTML
 const loginContainer = document.getElementById("login-container");
@@ -14,11 +19,9 @@ const appContent = document.getElementById("app-content");
 onAuthStateChanged(auth, (user) => {
   if (!user) {
     mostrarLogin();
-    // Muestra el formulario de login y oculta el contenido de la app
     if (loginContainer) loginContainer.style.display = "block";
     if (appContent) appContent.style.display = "none";
   } else {
-    // Si el usuario está autenticado, oculta el login y muestra la app
     if (loginContainer) loginContainer.style.display = "none";
     if (appContent) appContent.style.display = "block";
   }
@@ -26,7 +29,6 @@ onAuthStateChanged(auth, (user) => {
 
 function mostrarLogin() {
   if (!loginContainer) return;
-  // Inyecta el formulario de login en el contenedor específico
   loginContainer.innerHTML = `
     <h2>Iniciar Sesión</h2>
     <input type="email" id="loginEmail" placeholder="Correo electrónico" required />
@@ -43,7 +45,6 @@ function mostrarLogin() {
   });
 }
 
-// Función para cerrar sesión
 function logout() {
   signOut(auth)
     .then(() => {
@@ -53,9 +54,6 @@ function logout() {
     .catch((error) => console.error("Error al cerrar sesión:", error.message));
 }
 
-// Lógica de Depósitos
-
-// Elementos del DOM (dentro de #app-content)
 const depositForm = document.getElementById('deposit-form');
 const amountInput = document.getElementById('amount');
 const nameInput = document.getElementById('name');
@@ -65,7 +63,6 @@ const historyList = document.getElementById('history-list');
 const depositosRef = ref(database, "depositos");
 const totalRef = ref(database, "totalMonto");
 
-// Escucha en tiempo real para actualizar el historial de depósitos
 onValue(depositosRef, (snapshot) => {
   if (historyList) {
     historyList.innerHTML = "";
@@ -77,10 +74,8 @@ onValue(depositosRef, (snapshot) => {
   }
 });
 
-// Escucha en tiempo real para actualizar el monto total
 onValue(totalRef, (snapshot) => {
   let total = snapshot.val();
-  // Si no hay valor, o si es 0, se asigna el depósito inicial deseado
   if (!total) { 
     total = 320810;
     set(totalRef, total);
@@ -96,7 +91,6 @@ function addDepositToFirebase(nombre, cantidad) {
 
 function actualizarTotal(cantidad) {
   get(totalRef).then((snapshot) => {
-    // Suma el nuevo depósito al total actual
     const total = (snapshot.val() || 0) + cantidad;
     set(totalRef, total);
   });
@@ -121,7 +115,6 @@ function addDepositToDOM(nombre, cantidad, fecha, id) {
   historyList.appendChild(listItem);
 }
 
-// Manejar el envío del formulario de depósito
 if (depositForm) {
   depositForm.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -135,7 +128,6 @@ if (depositForm) {
 
     addDepositToFirebase(nombre, cantidad);
 
-    // Reproducir audio al hacer un depósito
     const audio = document.getElementById('interaction-audio');
     if (audio) {
       audio.play();
