@@ -51,6 +51,7 @@
         h2, h3 {
             margin-top: 20px;
             color: white;
+            text-align: center;
             background-color: rgba(0, 0, 0, 0.5);
             padding: 10px;
             border-radius: 5px;
@@ -100,42 +101,29 @@
         input, button {
             margin: 5px 0;
         }
-
-        #sound-button {
-            background-color: green;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 20px 0;
-        }
-
-        #sound-button:hover {
-            background-color: darkgreen;
-        }
     </style>
 </head>
 <body>
-    <!-- Video de fondo SIN muted -->
+    <!-- Video de fondo -->
     <video id="background-video" autoplay loop muted>
         <source src="/creamfields.mp4" type="video/mp4">
         Tu navegador no soporta el elemento de video.
     </video>
 
+    <!-- Audio de fondo -->
+    <audio id="background-audio" loop>
+        <source src="/audiofile.mp3" type="audio/mp3">
+        Tu navegador no soporta el elemento de audio.
+    </audio>
+
     <div class="container">
         <h1>Depósitos Compartidos</h1>
-
-        <!-- Botón para activar el sonido -->
-        <button id="sound-button">Activar Sonido</button>
-
         <form id="deposit-form">
             <input type="number" id="amount" placeholder="Monto a depositar" required>
             <input type="text" id="name" placeholder="Tu nombre" required>
             <button type="submit">Añadir Depósito</button>
         </form>
-
-        <h2>Monto Total: <span id="total-amount">$0</span></h2>
+        <h2>Monto Total: <span id="total-amount">$282810</span></h2>
         <h3>Historial de Depósitos:</h3>
         <ul id="history-list"></ul>
     </div>
@@ -146,55 +134,30 @@
         const nameInput = document.getElementById('name');
         const totalAmountSpan = document.getElementById('total-amount');
         const historyList = document.getElementById('history-list');
-        const backgroundVideo = document.getElementById('background-video');
-        const soundButton = document.getElementById('sound-button');
+        const audio = document.getElementById('background-audio');
 
-        let totalAmount = 0;
-        totalAmountSpan.textContent = `$${totalAmount}`;
+        let totalAmount = 342810; 
+        totalAmountSpan.textContent = `$${totalAmount}`; 
 
-        // Estado para controlar si el sonido está habilitado
-        let isSoundEnabled = false;
-
-        // Activar el sonido al hacer clic en el botón
-        soundButton.addEventListener('click', () => {
-            backgroundVideo.muted = false;
-            backgroundVideo.volume = 0.5; // Volumen moderado
-            backgroundVideo.play().catch(error => {
-                console.log("Error al intentar reproducir el video:", error);
+        // Reproducir el audio cuando el usuario interactúe con la página
+        document.body.addEventListener('click', () => {
+            audio.play().catch(error => {
+                console.log("Error al intentar reproducir el audio:", error);
             });
+        }, { once: true }); // Solo se activa una vez
 
-            isSoundEnabled = true;
-            soundButton.textContent = "Sonido Activado ✅";
-            soundButton.disabled = true; // Desactiva el botón después de activarlo
-        });
+        // Función para actualizar el total
+        function updateTotal(amount) {
+            totalAmount += amount;
+            totalAmountSpan.textContent = `$${totalAmount}`; 
+        }
 
-        // Añadir depósito
-        depositForm.addEventListener('submit', (event) => {
-            event.preventDefault();
-            const name = nameInput.value.trim();
-            const amount = parseInt(amountInput.value);
+        // Función para desplazarse automáticamente hacia el final de la lista
+        function scrollToBottom() {
+            historyList.scrollTop = historyList.scrollHeight;
+        }
 
-            if (!name || isNaN(amount) || amount <= 0) {
-                alert('Por favor, ingresa un nombre y un monto válido.');
-                return;
-            }
-
-            addDeposit(name, amount);
-            updateTotal(amount);
-
-            // Reproducir el sonido del video SOLO si está activado
-            if (isSoundEnabled) {
-                backgroundVideo.muted = false;
-                backgroundVideo.volume = 0.5;
-                backgroundVideo.play().catch(error => {
-                    console.log("Error al intentar reproducir el video:", error);
-                });
-            }
-
-            nameInput.value = '';
-            amountInput.value = '';
-        });
-
+        // Función para añadir un depósito al historial
         function addDeposit(name, amount) {
             const listItem = document.createElement('li');
             listItem.innerHTML = `
@@ -204,15 +167,37 @@
             const deleteButton = listItem.querySelector('.delete-button');
             deleteButton.addEventListener('click', () => {
                 historyList.removeChild(listItem);
-                updateTotal(-amount);
+                updateTotal(-amount); 
             });
             historyList.appendChild(listItem);
+
+            // Desplazarse automáticamente al final después de añadir el depósito
+            scrollToBottom();
         }
 
-        function updateTotal(amount) {
-            totalAmount += amount;
-            totalAmountSpan.textContent = `$${totalAmount}`;
-        }
+        // Manejo del formulario
+        depositForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const name = nameInput.value.trim();
+            const amount = parseInt(amountInput.value); 
+
+            if (!name || isNaN(amount) || amount <= 0) {
+                alert('Por favor, ingresa un nombre y un monto válido.');
+                return;
+            }
+
+            addDeposit(name, amount);
+            updateTotal(amount);
+
+            // Reproducir el audio automáticamente después de añadir un depósito
+            audio.play().catch(error => {
+                console.log("Error al intentar reproducir el audio después de añadir un depósito:", error);
+            });
+
+            // Limpiar campos
+            nameInput.value = '';
+            amountInput.value = '';
+        });
     </script>
 </body>
 </html>
