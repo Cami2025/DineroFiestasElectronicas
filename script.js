@@ -4,7 +4,22 @@ console.log("🚀 script.js se ha cargado correctamente.");
 
 import { database, auth } from "./firebase-config.js";
 import { ref, push, onValue, remove, set, get } from "firebase/database";
-import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
+import { 
+  signInWithEmailAndPassword, 
+  onAuthStateChanged, 
+  signOut, 
+  setPersistence, 
+  inMemoryPersistence 
+} from "firebase/auth";
+
+// Configurar la persistencia para que no se guarde la sesión (se pedirá login cada vez)
+setPersistence(auth, inMemoryPersistence)
+  .then(() => {
+    console.log("Persistence set to inMemoryPersistence: se pedirá login cada vez.");
+  })
+  .catch((error) => {
+    console.error("Error setting persistence:", error);
+  });
 
 // Obtener los contenedores definidos en el HTML
 const loginContainer = document.getElementById("login-container");
@@ -80,7 +95,7 @@ onValue(depositosRef, (snapshot) => {
 // Escucha en tiempo real para actualizar el monto total
 onValue(totalRef, (snapshot) => {
   let total = snapshot.val();
-  // Si no hay valor, o si es 0, se asigna el depósito inicial deseado
+  // Si no hay valor o es 0, se asigna el depósito inicial deseado (320810)
   if (!total) { 
     total = 320810;
     set(totalRef, total);
