@@ -19,9 +19,9 @@
         .container {
             position: relative;
             z-index: 1;
-            color: black;
+            color: white;
             text-align: center;
-            background-color: rgba(0, 0, 0, 0.1);
+            background-color: rgba(0, 0, 0, 0.3);
             padding: 20px;
             border-radius: 10px;
             margin-top: 50px;
@@ -40,7 +40,7 @@
         h2, h3 {
             margin-top: 20px;
             color: black;
-            background-color: rgba(255, 255, 255, 0.7);
+            background-color: rgba(255, 255, 255, 0.5);
             padding: 10px;
             border-radius: 5px;
         }
@@ -49,7 +49,7 @@
             max-height: 300px;
             overflow-y: scroll;
             margin-top: 10px;
-            background-color: rgba(255, 255, 255, 0.9);
+            background-color: rgba(255, 255, 255, 0.8);
             padding: 10px;
             border-radius: 5px;
         }
@@ -60,19 +60,6 @@
 
         input, button {
             margin: 5px 0;
-        }
-
-        .delete-button {
-            background-color: red;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .delete-button:hover {
-            background-color: darkred;
         }
     </style>
 </head>
@@ -103,37 +90,17 @@
         const historyList = document.getElementById('history-list');
         const interactionAudio = document.getElementById('interaction-audio');
 
-        let deposits = JSON.parse(localStorage.getItem('deposits')) || [];
-        let totalAmount = deposits.reduce((acc, deposit) => acc + deposit.amount, 0);
-
+        let totalAmount = 0; 
         totalAmountSpan.textContent = `$${totalAmount}`;
 
-        // Función para guardar los depósitos en el almacenamiento local
-        function saveDeposits() {
-            localStorage.setItem('deposits', JSON.stringify(deposits));
-        }
+        // Asegurarse de que el audio no esté silenciado y tenga volumen
+        interactionAudio.muted = false;
+        interactionAudio.volume = 1.0; 
 
-        // Función para mostrar los depósitos en la lista
-        function displayDeposits() {
-            historyList.innerHTML = '';
-            deposits.forEach((deposit, index) => {
-                const listItem = document.createElement('li');
-                listItem.innerHTML = `
-                    ${deposit.name} depositó $${deposit.amount}
-                    <button class="delete-button" data-index="${index}">Eliminar</button>
-                `;
-                historyList.appendChild(listItem);
-            });
-        }
-
-        // Función para actualizar el total
-        function updateTotal() {
-            totalAmount = deposits.reduce((acc, deposit) => acc + deposit.amount, 0);
-            totalAmountSpan.textContent = `$${totalAmount}`;
-        }
-
-        // Cargar los depósitos al iniciar
-        displayDeposits();
+        // Verificar si el audio está cargado correctamente
+        interactionAudio.addEventListener('loadeddata', () => {
+            console.log("Audio cargado correctamente.");
+        });
 
         // Manejo del formulario para añadir depósitos
         depositForm.addEventListener('submit', (event) => {
@@ -146,32 +113,24 @@
                 return;
             }
 
-            const newDeposit = { name, amount };
-            deposits.push(newDeposit);
-            saveDeposits();
-            displayDeposits();
-            updateTotal();
+            const listItem = document.createElement('li');
+            listItem.textContent = `${name} depositó $${amount}`;
+            historyList.appendChild(listItem);
+
+            totalAmount += amount;
+            totalAmountSpan.textContent = `$${totalAmount}`;
 
             // Reproducir el audio al hacer un depósito
-            interactionAudio.currentTime = 0;
-            interactionAudio.play().catch(error => {
+            interactionAudio.currentTime = 0; // Reiniciar el audio desde el inicio
+            interactionAudio.play().then(() => {
+                console.log("El audio se está reproduciendo correctamente.");
+            }).catch(error => {
                 console.error("Error al intentar reproducir el audio:", error);
                 alert("Hubo un problema al reproducir el audio.");
             });
 
             nameInput.value = '';
             amountInput.value = '';
-        });
-
-        // Manejo de la eliminación de depósitos
-        historyList.addEventListener('click', (event) => {
-            if (event.target.classList.contains('delete-button')) {
-                const index = event.target.getAttribute('data-index');
-                deposits.splice(index, 1);
-                saveDeposits();
-                displayDeposits();
-                updateTotal();
-            }
         });
     </script>
 </body>
