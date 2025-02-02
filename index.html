@@ -104,14 +104,14 @@
     </style>
 </head>
 <body>
-    <!-- Video de fondo SIN el atributo muted -->
-    <video id="background-video" autoplay loop>
+    <!-- Video de fondo SIN sonido -->
+    <video id="background-video" autoplay loop muted>
         <source src="/creamfields.mp4" type="video/mp4">
         Tu navegador no soporta el elemento de video.
     </video>
 
-    <!-- Audio de fondo -->
-    <audio id="background-audio" loop>
+    <!-- Audio que se reproducirá solo al interactuar -->
+    <audio id="interaction-audio">
         <source src="/audiofile.mp3" type="audio/mp3">
         Tu navegador no soporta el elemento de audio.
     </audio>
@@ -134,22 +134,10 @@
         const nameInput = document.getElementById('name');
         const totalAmountSpan = document.getElementById('total-amount');
         const historyList = document.getElementById('history-list');
-        const audio = document.getElementById('background-audio');
-        const video = document.getElementById('background-video');
+        const interactionAudio = document.getElementById('interaction-audio');
 
         let totalAmount = 342810; 
         totalAmountSpan.textContent = `$${totalAmount}`;
-
-        // Reproducir el audio al primer clic en cualquier parte de la página
-        document.body.addEventListener('click', () => {
-            audio.play().catch(error => {
-                console.log("Error al intentar reproducir el audio:", error);
-            });
-            video.muted = false;  // Asegura que el video también tenga audio
-            video.play().catch(error => {
-                console.log("Error al intentar reproducir el video:", error);
-            });
-        }, { once: true }); // Solo una vez al cargar la página
 
         // Función para actualizar el total
         function updateTotal(amount) {
@@ -172,7 +160,7 @@
             historyList.appendChild(listItem);
         }
 
-        // Manejo del formulario
+        // Reproducción de audio SOLO al interactuar (al añadir un depósito)
         depositForm.addEventListener('submit', (event) => {
             event.preventDefault();
             const name = nameInput.value.trim();
@@ -186,9 +174,10 @@
             addDeposit(name, amount);
             updateTotal(amount);
 
-            // Reproducir el audio nuevamente después de añadir un depósito
-            audio.play().catch(error => {
-                console.log("Error al intentar reproducir el audio después de añadir un depósito:", error);
+            // Reproducir el audio al agregar un depósito
+            interactionAudio.currentTime = 0; // Reinicia el audio si ya estaba sonando
+            interactionAudio.play().catch(error => {
+                console.log("Error al intentar reproducir el audio:", error);
             });
 
             nameInput.value = '';
