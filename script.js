@@ -80,8 +80,8 @@ onValue(depositosRef, (snapshot) => {
 // Escucha en tiempo real para actualizar el monto total
 onValue(totalRef, (snapshot) => {
   let total = snapshot.val();
-  if (total === null) {
-    // Si no hay valor, se asigna el depósito inicial deseado
+  // Si no hay valor, o si es 0, se asigna el depósito inicial deseado
+  if (!total) { 
     total = 320810;
     set(totalRef, total);
   }
