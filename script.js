@@ -76,7 +76,7 @@ onValue(depositosRef, (snapshot) => {
 
 onValue(totalRef, (snapshot) => {
   let total = snapshot.val();
-  if (!total) { 
+  if (total === null) { 
     total = 223910;
     set(totalRef, total);
   }
@@ -91,14 +91,20 @@ function addDepositToFirebase(nombre, cantidad) {
 
 function actualizarTotal(cantidad) {
   get(totalRef).then((snapshot) => {
-    const total = (snapshot.val() || 0) + cantidad;
-    set(totalRef, total);
+    const totalActual = snapshot.val() || 223910;
+    const nuevoTotal = totalActual + cantidad;
+    set(totalRef, nuevoTotal);
   });
 }
 
 function eliminarDeposito(id, cantidad) {
-  remove(ref(database, `depositos/${id}`));
-  actualizarTotal(-cantidad);
+  remove(ref(database, `depositos/${id}`)).then(() => {
+    get(totalRef).then((snapshot) => {
+      const totalActual = snapshot.val() || 223910;
+      const nuevoTotal = totalActual - cantidad;
+      set(totalRef, nuevoTotal);
+    });
+  });
 }
 
 function addDepositToDOM(nombre, cantidad, fecha, id) {
