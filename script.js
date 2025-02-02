@@ -24,10 +24,12 @@ setPersistence(auth, inMemoryPersistence)
     // Establecer el listener de autenticación después de configurar la persistencia
     onAuthStateChanged(auth, (user) => {
       if (!user) {
+        console.log("Usuario NO autenticado.");
         mostrarLogin();
         if (loginContainer) loginContainer.style.display = "block";
         if (appContent) appContent.style.display = "none";
       } else {
+        console.log("Usuario autenticado:", user);
         if (loginContainer) loginContainer.style.display = "none";
         if (appContent) appContent.style.display = "block";
       }
@@ -49,9 +51,16 @@ function mostrarLogin() {
   document.getElementById("loginButton").addEventListener("click", () => {
     const email = document.getElementById("loginEmail").value;
     const password = document.getElementById("loginPassword").value;
+    console.log("Intentando iniciar sesión con:", email);
     signInWithEmailAndPassword(auth, email, password)
-      .then(() => location.reload())
-      .catch((error) => alert("Error al iniciar sesión: " + error.message));
+      .then((userCredential) => {
+        console.log("Inicio de sesión exitoso:", userCredential);
+        location.reload();
+      })
+      .catch((error) => {
+        console.error("Error al iniciar sesión:", error);
+        alert("Error al iniciar sesión: " + error.message);
+      });
   });
 }
 
