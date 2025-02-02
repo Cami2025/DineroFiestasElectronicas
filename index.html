@@ -139,6 +139,10 @@
         let totalAmount = 342810; 
         totalAmountSpan.textContent = `$${totalAmount}`;
 
+        // Configuración del audio para asegurar que no esté silenciado y tenga un volumen adecuado
+        interactionAudio.muted = true;
+        interactionAudio.volume = 1.0; // Volumen máximo
+
         // Función para actualizar el total
         function updateTotal(amount) {
             totalAmount += amount;
@@ -177,7 +181,8 @@
             // Reproducir el audio al agregar un depósito
             interactionAudio.currentTime = 0; // Reinicia el audio si ya estaba sonando
             interactionAudio.play().catch(error => {
-                console.log("Error al intentar reproducir el audio:", error);
+                console.error("Error al intentar reproducir el audio:", error);
+                alert("No se pudo reproducir el sonido. Verifica la configuración del navegador.");
             });
 
             nameInput.value = '';
