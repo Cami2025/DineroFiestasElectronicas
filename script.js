@@ -2,8 +2,6 @@
 
 console.log("🚀 script.js se ha cargado correctamente.");
 
-import { database, auth } from "./firebase-config.js";
-import { ref, push, onValue, remove, set, get } from "firebase/database";
 import { 
   signInWithEmailAndPassword, 
   onAuthStateChanged, 
@@ -11,37 +9,36 @@ import {
   setPersistence, 
   inMemoryPersistence 
 } from "firebase/auth";
-
-// Configurar la persistencia para que no se guarde la sesión (se pedirá login cada vez)
-setPersistence(auth, inMemoryPersistence)
-  .then(() => {
-    console.log("Persistence set to inMemoryPersistence: se pedirá login cada vez.");
-  })
-  .catch((error) => {
-    console.error("Error setting persistence:", error);
-  });
+import { database, auth } from "./firebase-config.js";
+import { ref, push, onValue, remove, set, get } from "firebase/database";
 
 // Obtener los contenedores definidos en el HTML
 const loginContainer = document.getElementById("login-container");
 const appContent = document.getElementById("app-content");
 
-// Control de autenticación
-onAuthStateChanged(auth, (user) => {
-  if (!user) {
-    mostrarLogin();
-    // Muestra el formulario de login y oculta el contenido de la app
-    if (loginContainer) loginContainer.style.display = "block";
-    if (appContent) appContent.style.display = "none";
-  } else {
-    // Si el usuario está autenticado, oculta el login y muestra la app
-    if (loginContainer) loginContainer.style.display = "none";
-    if (appContent) appContent.style.display = "block";
-  }
-});
+// Configurar la persistencia para que no se guarde la sesión (se pedirá login cada vez)
+setPersistence(auth, inMemoryPersistence)
+  .then(() => {
+    console.log("Persistence set to inMemoryPersistence: se pedirá login cada vez.");
+
+    // Establecer el listener de autenticación después de configurar la persistencia
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        mostrarLogin();
+        if (loginContainer) loginContainer.style.display = "block";
+        if (appContent) appContent.style.display = "none";
+      } else {
+        if (loginContainer) loginContainer.style.display = "none";
+        if (appContent) appContent.style.display = "block";
+      }
+    });
+  })
+  .catch((error) => {
+    console.error("Error setting persistence:", error);
+  });
 
 function mostrarLogin() {
   if (!loginContainer) return;
-  // Inyecta el formulario de login en el contenedor específico
   loginContainer.innerHTML = `
     <h2>Iniciar Sesión</h2>
     <input type="email" id="loginEmail" placeholder="Correo electrónico" required />
@@ -95,8 +92,8 @@ onValue(depositosRef, (snapshot) => {
 // Escucha en tiempo real para actualizar el monto total
 onValue(totalRef, (snapshot) => {
   let total = snapshot.val();
-  // Si no hay valor o es 0, se asigna el depósito inicial deseado (320810)
-  if (!total) { 
+  // Si no hay valor o es 0, asigna el valor inicial 320810
+  if (!total) {
     total = 320810;
     set(totalRef, total);
   }
@@ -111,7 +108,6 @@ function addDepositToFirebase(nombre, cantidad) {
 
 function actualizarTotal(cantidad) {
   get(totalRef).then((snapshot) => {
-    // Suma el nuevo depósito al total actual
     const total = (snapshot.val() || 0) + cantidad;
     set(totalRef, total);
   });
